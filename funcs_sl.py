@@ -14,7 +14,11 @@ def download_quote_pdf(client, quoteID):
 
 def list_all_product_packages(client):
     object_mask = "mask[id, name]"
-    return client['Product_Package'].getAllObjects(mask=object_mask)
+    return client['Account'].getActivePackages(mask=object_mask)
+        #This approach came from http://sldn.softlayer.com/blog/sthompson/virtual-guest-ordering
+    #return client['Product_Package'].getAllObjects(mask=object_mask)
+
+
 
 def get_existing_quote_container(client, quoteID):
     container = client['Billing_Order_Quote'].getRecalculatedOrderContainer( \
