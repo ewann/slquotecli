@@ -18,53 +18,54 @@ def args_check_suceed():
         return False
     if not (is_api_key_in_env()):
         show_api_env_warn_msg()
+    return True
 
 def show_python_version_error_msg():
     print
-    print "Python version must be 2.6 or greater"
+    print ("Python version must be 2.6 or greater")
     print
-    print "http://sldn.softlayer.com/article/python"
+    print ("http://sldn.softlayer.com/article/python")
     print
-    print "You will need to make a newer version available."
+    print ("You will need to make a newer version available.")
 
 def show_importlib_error_msg():
     print
-    print "Fatal issue importing importlib module."
+    print ("Fatal issue importing importlib module.")
     print
-    print "You need to execute:"
+    print ("You need to execute:")
     print
-    print "pip install importlib"
+    print ("pip install importlib")
     print
-    print "or your platform's equivalent"
+    print ("or your platform's equivalent")
     print
 
 
 def show_SoftLayer_error_msg():
     print
-    print "Fatal issue importing SoftLayer module."
+    print ("Fatal issue importing SoftLayer module.")
     print
-    print "You need to execute:"
+    print ("You need to execute:")
     print
-    print "pip install SoftLayer"
+    print ("pip install SoftLayer")
     print
-    print "or your platform's equivalent"
+    print ("or your platform's equivalent")
     print
 
 def show_pip_error_msg():
-    print "pip isn't currently installed."
-    print "you will need to:"
+    print ("pip isn't currently installed.")
+    print ("you will need to:")
     print
-    print "yum install epel-release'"
-    print "yum install python-pip"
+    print ("yum install epel-release'")
+    print ("yum install python-pip")
     print
-    print "or your platform's equivalent"
+    print ("or your platform's equivalent")
     print
 
 def show_api_env_warn_msg():
     print
-    print "SL_API_KEY and / or SL_USERNAME"
+    print ("SL_API_KEY and / or SL_USERNAME")
     print
-    print "were not found in the environment"
+    print ("were not found in the environment")
     print
 
 def is_python_supported():
