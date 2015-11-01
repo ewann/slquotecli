@@ -57,6 +57,8 @@ def main(argv):
             elif choice == 7:
                 packageID = funcs_cli_menu.list_product_package_required_options()
                 pp.pprint(funcs_sl.list_product_package_required_options(client, packageID))
+            elif choice == 8:
+                pp.pprint(funcs_sl.get_datacenter_locatons(client))
 
 
 

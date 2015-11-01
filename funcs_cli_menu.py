@@ -11,6 +11,7 @@ def main():
   print ("5 - Duplicate existing quote")
   print ("6 - <BROKEN?> Create Order Cart")
   print ("7 - List SoftLayer_Product_Package required options")
+  print ("8 - List DataCenter locations")
   print ("0 - Exit")
   user_input = raw_input("Your choice: ")
   return int(user_input)

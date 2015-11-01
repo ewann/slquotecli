@@ -13,8 +13,8 @@ def download_quote_pdf(client, quoteID):
     return client['Billing_Order_Quote'].getPdf(id=quoteID)
 
 def list_all_product_packages(client):
-    categoryObjectMask = "mask[id, name]"
-    return client['Product_Package'].getAllObjects(mask=categoryObjectMask)
+    object_mask = "mask[id, name]"
+    return client['Product_Package'].getAllObjects(mask=object_mask)
 
 def get_existing_quote_container(client, quoteID):
     container = client['Billing_Order_Quote'].getRecalculatedOrderContainer( \
@@ -60,7 +60,9 @@ def list_product_package_required_options(client, package):
                     for category in price['categories'])):
                 print priceFormat % (price['id'], price['item']['description'])
 
-
+def get_datacenter_locatons(client):
+    object_mask = "mask[id, longName, name]"
+    return client['Location_Datacenter'].getDatacenters(mask=object_mask)
 
     #this can be used to enumberate all orders in the account
 #pp.pprint(client['Billing_Order'].getAllObjects())
