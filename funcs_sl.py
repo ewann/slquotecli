@@ -45,7 +45,7 @@ def list_product_package_required_options(client, package):
     configurations = client['Product_Package'].getConfiguration(
         id=package, mask=categoryObjectMask)
 
-    pricesObjectMask = "mask[id;item.description;categories.id]"
+    pricesObjectMask = "mask[id;item.description;categories.id,locationGroupId]"
 
     prices = client['Product_Package'].getItemPrices(
         id=package, mask=pricesObjectMask)
@@ -62,11 +62,17 @@ def list_product_package_required_options(client, package):
                 continue
             if any((category.get('id') == configuration['itemCategory']['id']
                     for category in price['categories'])):
-                print priceFormat % (price['id'], price['item']['description'])
+                print "LocGrpID: ", price['locationGroupId'], priceFormat % (price['id'], price['item']['description'])
+                    #locationGroupId is the reason some items appear multiple times - allows us to restrict the list if the dc is known
 
 def get_datacenter_locatons(client):
     object_mask = "mask[id, longName, name]"
     return client['Location_Datacenter'].getDatacenters(mask=object_mask)
+
+def get_location_groups(client):
+    object_mask = "mask[id,description]"
+    return client['Location_Group'].getAllObjects(mask=object_mask)
+
 
     #this can be used to enumberate all orders in the account
 #pp.pprint(client['Billing_Order'].getAllObjects())
