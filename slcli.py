@@ -13,11 +13,10 @@ def main(argv):
         if debug_printing: print("envchecks returned true...")
         import funcs_sl #functions specific to SL interaction
         import funcs_cli_menu #functions specific to providing a cli menu
-        #import SoftLayer
-        #increase default timeout to reduce false failure
-        #on slow or conjested connections
-        client = funcs_sl.conn_obj()
+        import funcs_fs #functions specific to local fs interaction
 
+        client = funcs_sl.conn_obj()
+            #get a connection object
         import pprint
         pp = pprint.PrettyPrinter(indent=4)
 
@@ -33,18 +32,10 @@ def main(argv):
                 pp.pprint(funcs_sl.all_quotes(client))
             elif choice == 2:
                 quoteID = funcs_cli_menu.download_quote_pdf()
-                mypdf = funcs_sl.download_quote_pdf(client, quoteID)
-                pdfPickle(mypdf)
-                #print ("Connecting to SoftLayer...")
-
-def pdfPickle(bin_obj):
-    import pickle
-    pickleFileName = "out.pdf"
-    pickleFile = open(pickleFileName, 'wb')
-    pickle.dump(bin_obj, pickleFile, pickle.HIGHEST_PROTOCOL)
-    pickleFile.close()
-
-
+                print ("Connecting to SoftLayer...")
+                quotePDF = funcs_sl.download_quote_pdf(client, quoteID)
+                print ("Writing output file ")
+                funcs_fs.pdfPickle(quoteID, quotePDF)
 
 if __name__ == "__main__":
    main(sys.argv[1:])
