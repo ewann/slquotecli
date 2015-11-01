@@ -38,7 +38,7 @@ def main(argv):
                 funcs_fs.pdfPickle(quoteID, quotePDF)
             elif choice == 3:
                 print ("Connecting to SoftLayer...")
-                pp.pprint(funcs_sl.list_all_products(client))
+                pp.pprint(funcs_sl.list_all_product_packages(client))
             elif choice == 4:
                 quoteID = funcs_cli_menu.reverify_existing_quote()
                 print ("Connecting to SoftLayer...")
@@ -49,6 +49,16 @@ def main(argv):
                 print ("Connecting to SoftLayer...")
                 quote_container = funcs_sl.get_existing_quote_container(client, quoteID)
                 pp.pprint(funcs_sl.place_quote(client, quote_container))
+            elif choice == 6:
+                quoteID = funcs_cli_menu.create_order_cart()
+                print ("Connecting to SoftLayer...")
+                quote_container = funcs_sl.get_existing_quote_container(client, quoteID)
+                pp.pprint(funcs_sl.create_order_cart(client, quote_container))
+            elif choice == 7:
+                packageID = funcs_cli_menu.list_product_package_required_options()
+                pp.pprint(funcs_sl.list_product_package_required_options(client, packageID))
+
+
 
 if __name__ == "__main__":
    main(sys.argv[1:])

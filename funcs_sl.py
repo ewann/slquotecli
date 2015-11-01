@@ -12,7 +12,7 @@ def download_quote_pdf(client, quoteID):
     #because: logic!? Anyway... this works
     return client['Billing_Order_Quote'].getPdf(id=quoteID)
 
-def list_all_products(client):
+def list_all_product_packages(client):
     categoryObjectMask = "mask[id, name]"
     return client['Product_Package'].getAllObjects(mask=categoryObjectMask)
 
@@ -28,6 +28,39 @@ def place_quote(client, container):
     return client['Product_Order'].placeQuote(container)
     #same approach can be used wih an existing quote id, as well as a quote container?
 #result = client['Billing_Order_Quote'].verifyOrder(orderQuoteId)
+
+def create_order_cart(client, container):
+    return client['Product_Order_Cart'].createCart(container)
+
+def list_product_package_required_options(client, package):
+    #package = 248 #46 for virtual server, see sl-list-pkgs.py for more
+
+    #client = SoftLayer.Client(username=apiUsername, api_key=apiKey)
+    categoryObjectMask = "mask[isRequired, itemCategory[id, name]]"
+
+    configurations = client['Product_Package'].getConfiguration(
+        id=package, mask=categoryObjectMask)
+
+    pricesObjectMask = "mask[id;item.description;categories.id]"
+
+    prices = client['Product_Package'].getItemPrices(
+        id=package, mask=pricesObjectMask)
+
+    headerFormat = '%s - %s:'
+    priceFormat = '    %s -- %s'
+    for configuration in configurations:
+        if (not configuration['isRequired']):
+            continue
+        print headerFormat % (configuration['itemCategory']['name'],
+                              configuration['itemCategory']['id'])
+        for price in prices:
+            if ('categories' not in price):
+                continue
+            if any((category.get('id') == configuration['itemCategory']['id']
+                    for category in price['categories'])):
+                print priceFormat % (price['id'], price['item']['description'])
+
+
 
     #this can be used to enumberate all orders in the account
 #pp.pprint(client['Billing_Order'].getAllObjects())
