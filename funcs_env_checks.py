@@ -19,7 +19,15 @@ def args_check_suceed():
             show_pip_error_msg()
         return False
     if not (is_api_key_in_env()):
-        show_api_env_warn_msg()
+        #show_api_env_warn_msg()
+        print ("")
+        print ("Expected to find the environment variables:")
+        print ("")
+        print ("SL_API_KEY=<yourkey>")
+        print ("SL_USERNAME=<yourusername>")
+        print ("")
+        print ("Please update your environment before continuing.")
+        return False
     return True
 
 def show_python_version_error_msg():
@@ -66,6 +74,8 @@ def show_pip_error_msg():
 
 def show_api_env_warn_msg():
     print ("")
+    print ("Warning:")
+    print ("")
     print ("SL_API_KEY and / or SL_USERNAME")
     print ("")
     print ("were not found in the environment")
@@ -99,9 +109,12 @@ def is_pip_installed():
         return False
 
 def is_api_key_in_env():
-    SL_API_KEY = str(os.environ['SL_API_KEY'])
-    SL_USERNAME = str(os.environ['SL_USERNAME'])
-    if SL_USERNAME == '' or SL_API_KEY == '':
+    try:
+        SL_API_KEY = str(os.environ['SL_API_KEY'])
+    except:
         return False
-    else:
-        return True
+    try:
+        SL_USERNAME = str(os.environ['SL_USERNAME'])
+    except:
+        return False
+    return True
