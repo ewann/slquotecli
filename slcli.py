@@ -29,13 +29,26 @@ def main(argv):
                 user_wants_to_exit = True
             elif choice == 1:
                 print ("Connecting to SoftLayer...")
-                pp.pprint(funcs_sl.all_quotes(client))
+                pp.pprint(funcs_sl.list_all_quotes(client))
             elif choice == 2:
                 quoteID = funcs_cli_menu.download_quote_pdf()
                 print ("Connecting to SoftLayer...")
                 quotePDF = funcs_sl.download_quote_pdf(client, quoteID)
                 print ("Writing output file ")
                 funcs_fs.pdfPickle(quoteID, quotePDF)
+            elif choice == 3:
+                print ("Connecting to SoftLayer...")
+                pp.pprint(funcs_sl.list_all_products(client))
+            elif choice == 4:
+                quoteID = funcs_cli_menu.reverify_existing_quote()
+                print ("Connecting to SoftLayer...")
+                quote_container = funcs_sl.get_existing_quote_container(client, quoteID)
+                pp.pprint(funcs_sl.verify_quote_or_order(client, quote_container))
+            elif choice == 5:
+                quoteID = funcs_cli_menu.duplicate_existing_quote()
+                print ("Connecting to SoftLayer...")
+                quote_container = funcs_sl.get_existing_quote_container(client, quoteID)
+                pp.pprint(funcs_sl.place_quote(client, quote_container))
 
 if __name__ == "__main__":
    main(sys.argv[1:])
