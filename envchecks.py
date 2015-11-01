@@ -5,6 +5,8 @@ import os
     #needed for is_api_key_in_env()
 
 def args_check_suceed():
+    #wrap up all the checks performed in this module,
+    #so it is possible to call a single entry point.
     if not (is_python_supported()):
         show_python_version_error_msg()
         return False
@@ -21,53 +23,53 @@ def args_check_suceed():
     return True
 
 def show_python_version_error_msg():
-    print
-    print ("Python 2.x version must be 2.6 or greater")
-    print ("Python 3.x is not currently supported; by this script, or:")
-    print
+    print ("")
+    print ("Python 3.x is not currently supported by this script.")
+    print ("Python 2.x version must be 2.6 or greater for SoftLayer:")
+    print ("")
     print ("http://sldn.softlayer.com/article/python")
-    print
-    print ("You will need to make a newer version available.")
+    print ("")
+    print ("You will need to make a supported version available.")
 
 def show_importlib_error_msg():
-    print
+    print ("")
     print ("Fatal issue importing importlib module.")
-    print
+    print ("")
     print ("You need to execute:")
-    print
+    print ("")
     print ("pip install importlib")
-    print
+    print ("")
     print ("or your platform's equivalent")
-    print
+    print ("")
 
 
 def show_SoftLayer_error_msg():
-    print
+    print ("")
     print ("Fatal issue importing SoftLayer module.")
-    print
+    print ("")
     print ("You need to execute:")
-    print
+    print ("")
     print ("pip install SoftLayer")
-    print
+    print ("")
     print ("or your platform's equivalent")
-    print
+    print ("")
 
 def show_pip_error_msg():
     print ("pip isn't currently installed.")
     print ("you will need to:")
-    print
+    print ("")
     print ("yum install epel-release'")
     print ("yum install python-pip")
-    print
+    print ("")
     print ("or your platform's equivalent")
-    print
+    print ("")
 
 def show_api_env_warn_msg():
-    print
+    print ("")
     print ("SL_API_KEY and / or SL_USERNAME")
-    print
+    print ("")
     print ("were not found in the environment")
-    print
+    print ("")
 
 def is_python_supported():
     if sys.version_info < (2, 6, 0) or sys.version_info > (3, 0):
