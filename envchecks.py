@@ -1,6 +1,6 @@
 #env-checks.py module
 import sys
-    #needed for is_python_supported
+    #needed for is_python_supported()
 import os
     #needed for is_api_key_in_env()
 
@@ -22,7 +22,8 @@ def args_check_suceed():
 
 def show_python_version_error_msg():
     print
-    print ("Python version must be 2.6 or greater")
+    print ("Python 2.x version must be 2.6 or greater")
+    print ("Python 3.x is not currently supported; by this script, or:")
     print
     print ("http://sldn.softlayer.com/article/python")
     print
@@ -69,7 +70,7 @@ def show_api_env_warn_msg():
     print
 
 def is_python_supported():
-    if sys.version_info < (2, 6, 0):
+    if sys.version_info < (2, 6, 0) or sys.version_info > (3, 0):
         return False
     else:
         return True
