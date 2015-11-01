@@ -1,0 +1,26 @@
+SL Virtual Server creation errors:
+
+Prior to:
+"Edit Tickets" - is part of the solution for cancelling virtual servers
+
+Cancellation: prior to ticket creation grant -
+This cancellation could not be processed please contact support.This cancellation could not be processed.
+ Please contact support. Unable to create cancel ticket for virtual server.
+
+
+
+
+Prior to:
+"Add/Upgrade Cloud Instances" - might not be needed?
+"Add Server"
+
+You do not have permission to verify server orders.
+
+
+--> softlayer: You do not have permission to manage ssh keys.
+Services --> "Manage SSH Keys"
+
+
+image creation took ~ 20 mins approx, for a very simple os config
+
+guarantee
