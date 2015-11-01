@@ -73,6 +73,18 @@ def get_location_groups(client):
     object_mask = "mask[id,description]"
     return client['Location_Group'].getAllObjects(mask=object_mask)
 
+def location_groups_NOT_YET_COMPLETED():
+    # querying location groups - needed to identify pricing items
+    mymask = "mask[id,description]"
+    out = client['Location_Group'].getLocations(id=503)
+    pp.pprint(out)
+
+    out = client['Location_Group'].getLocationGroupType(id=545)
+    pp.pprint(out)
+
+    out = client['Location'].getGroups(id=449596)
+    pp.pprint(out)
+
 
     #this can be used to enumberate all orders in the account
 #pp.pprint(client['Billing_Order'].getAllObjects())

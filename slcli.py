@@ -59,8 +59,8 @@ def main(argv):
                 pp.pprint(funcs_sl.list_product_package_required_options(client, packageID))
             elif choice == 8:
                 pp.pprint(funcs_sl.get_datacenter_locatons(client))
-
-
+            elif choice == 9:
+                pp.pprint(funcs_sl.get_location_groups(client))
 
 if __name__ == "__main__":
    main(sys.argv[1:])
