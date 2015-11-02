@@ -76,18 +76,10 @@ order = {
     },
 ],
 }
-    #verify the order is placeable
-#client['Product_Order'].verifyOrder(order);
-    #lodge the order as a quote - ie: don't execute a financial transaction
-    #but make it available for later placement:
-#client['Product_Order'].placeQuote(order);
-    #this next statement needs further review:
+
 from pprint import pprint as pp
 pp = pprint.PrettyPrinter(indent=4)
 
-    #these next two lines haven't yielded anything useful yet
-#thisquote = client['Billing_Order', '6067535']
-#pp.pprint(thisquote)#client['Billing_Order_Quote'].getPdf(thisquote))
 
     #this can be used to enumberate all orders in the account
 #pp.pprint(client['Billing_Order'].getAllObjects())
@@ -101,39 +93,18 @@ orderQuoteId = '1558395'
 def getOrderContainer(quote_id):
     container = client['Billing_Order_Quote'].getRecalculatedOrderContainer( \
         id=quote_id)
-    return container['orderContainers'][0]
+    return container #container['orderContainers'][0]
 
     #invoke the function above:
 container = getOrderContainer(orderQuoteId)
     #output that stuff:
 pp.pprint(container)
 
-    #verifying the order for orderQuoteId should never fail
-#result = client['Billing_Order_Quote'].verifyOrder(orderQuoteId)
-    #next we verify the order using the order container we extracted
-#result = client['Product_Order'].verifyOrder(container)
-    #next we register a new quote using the verified container
-#result = client['Product_Order'].placeQuote(container)
     #https://softlayer.github.io/python/order_quote/
-#pp.pprint(result)
 
-#quotes = client['Account'].getQuotes()
-#pp.pprint(quotes)
 
     #this appears to work, but hasn't yet been useful
 quoteKey = '8b3a868b22e56543e066cd97af8d72c9'
 #quote = client['Billing_Order_Quote'].getQuoteByQuoteKey(quoteKey)
 
 #quoteObj = client['Billing_Order_Quote'].getObject(id=1558305)
-
-    #because: logic!? Anyway... this works
-#result = client['Billing_Order_Quote'].getPdf(id=1558305)
-#pp.pprint(result)
-
-
-def pdfPickle(bin_obj):
-    import pickle
-    pickleFileName = "out.pdf"
-    pickleFile = open(pickleFileName, 'wb')
-    pickle.dump(bin_obj, pickleFile, pickle.HIGHEST_PROTOCOL)
-    pickleFile.close()

@@ -110,6 +110,12 @@ def manage_quotes_menu(client, datacenterID):
     print datacenterID
     print ("")
     print ("  1 - Specify datacenter")
+    print ("  2 - List existing order container(s)")
+    print ("  3 - Create a quote container")
+    print ("  4 - Modify a quote container")
+    print ("  5 - Delete a quote container")
+    print ("  6 - Verify a quote (all existing order containers)")
+    print ("  7 - Place a quote (all existing order containers)")
     print ("  0 - Back to main menu (throw away unsaved quotes)")
     user_input = raw_input("Your choice: ")
     try:
@@ -120,5 +126,5 @@ def manage_quotes_menu(client, datacenterID):
         return
     elif choice == 1:
         datacenterID = get_datacenter_id()
-
         manage_quotes_menu(client, datacenterID)
+    #elif choice == 2:

@@ -1,3 +1,6 @@
+#currently this file holds some examples of server build
+#using flex images - not yet replicated elsewhere
+
 import SoftLayer
 import os
 #http://softlayer-python.readthedocs.org/en/latest/api/managers/vs.html
