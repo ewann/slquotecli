@@ -18,8 +18,6 @@ def list_all_product_packages(client):
         #This approach came from http://sldn.softlayer.com/blog/sthompson/virtual-guest-ordering
     #return client['Product_Package'].getAllObjects(mask=object_mask)
 
-
-
 def get_existing_quote_container(client, quoteID):
     container = client['Billing_Order_Quote'].getRecalculatedOrderContainer( \
         id=quoteID)

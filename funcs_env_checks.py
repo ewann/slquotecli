@@ -18,6 +18,8 @@ def args_check_suceed():
         if not (is_pip_installed()):
             show_pip_error_msg()
         return False
+    if not (is_requests_installed()):
+        show_requests_warn_msg
     if not (is_api_key_in_env()):
         #show_api_env_warn_msg()
         print ("")
@@ -81,6 +83,15 @@ def show_api_env_warn_msg():
     print ("were not found in the environment")
     print ("")
 
+def show_requests_warn_msg():
+    print ("")
+    print ("Warning:")
+    print ("")
+    print ("python requests module is not installed")
+    print ("")
+    print ("Issue logging / telemetry may not be available")
+    print ("")
+
 def is_python_supported():
     if sys.version_info < (2, 6, 0) or sys.version_info > (3, 0):
         return False
@@ -118,3 +129,10 @@ def is_api_key_in_env():
     except:
         return False
     return True
+
+def is_requests_installed():
+    try:
+        import requests
+        return True
+    except:
+        return False

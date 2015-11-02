@@ -80,8 +80,8 @@ def main(argv):
                 packageID = funcs_cli_menu.list_product_package_all_options()
                 print ("Connecting to SoftLayer...")
                 pp.pprint(funcs_sl.list_product_package_options(client, packageID, False))
-
-
+            elif choice == 14:
+                funcs_cli_menu.manage_quotes_menu(client, 0)
 
 if __name__ == "__main__":
    main(sys.argv[1:])
