@@ -21,7 +21,7 @@ def main(argv):
         pp = pprint.PrettyPrinter(indent=4)
 
         user_wants_to_exit = False
-
+        next_order_container_id = 0
         while user_wants_to_exit == False:
             choice = funcs_cli_menu.main()
             if debug_printing: print (choice)
@@ -56,11 +56,32 @@ def main(argv):
                 pp.pprint(funcs_sl.create_order_cart(client, quote_container))
             elif choice == 7:
                 packageID = funcs_cli_menu.list_product_package_required_options()
-                pp.pprint(funcs_sl.list_product_package_required_options(client, packageID))
+                print ("Connecting to SoftLayer...")
+                pp.pprint(funcs_sl.list_product_package_options(client, packageID, True))
             elif choice == 8:
-                pp.pprint(funcs_sl.get_datacenter_locatons(client))
+                print ("Connecting to SoftLayer...")
+                pp.pprint(funcs_sl.get_datacenter_locations(client))
             elif choice == 9:
+                print ("Connecting to SoftLayer...")
                 pp.pprint(funcs_sl.get_location_groups(client))
+            elif choice == 10:
+                locationGroupID = funcs_cli_menu.get_location_group_members()
+                print ("Connecting to SoftLayer...")
+                pp.pprint(funcs_sl.get_location_group_members(client, locationGroupID))
+            elif choice == 11:
+                groupID = funcs_cli_menu.get_location_group_type()
+                print ("Connecting to SoftLayer...")
+                pp.pprint(funcs_sl.get_location_group_type(client,groupID))
+            elif choice == 12:
+                locationID = funcs_cli_menu.get_is_member_of_location_groups()
+                print ("Connecting to SoftLayer...")
+                pp.pprint(funcs_sl.get_is_member_of_location_groups(client,locationID))
+            elif choice == 13:
+                packageID = funcs_cli_menu.list_product_package_all_options()
+                print ("Connecting to SoftLayer...")
+                pp.pprint(funcs_sl.list_product_package_options(client, packageID, False))
+
+
 
 if __name__ == "__main__":
    main(sys.argv[1:])

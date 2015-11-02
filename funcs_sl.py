@@ -36,7 +36,7 @@ def place_quote(client, container):
 def create_order_cart(client, container):
     return client['Product_Order_Cart'].createCart(container)
 
-def list_product_package_required_options(client, package):
+def list_product_package_options(client, package, required):
     #package = 248 #46 for virtual server, see sl-list-pkgs.py for more
 
     #client = SoftLayer.Client(username=apiUsername, api_key=apiKey)
@@ -53,8 +53,9 @@ def list_product_package_required_options(client, package):
     headerFormat = '%s - %s:'
     priceFormat = '    %s -- %s'
     for configuration in configurations:
-        if (not configuration['isRequired']):
-            continue
+        if required:
+            if (not configuration['isRequired']):
+                continue
         print headerFormat % (configuration['itemCategory']['name'],
                               configuration['itemCategory']['id'])
         for price in prices:
@@ -65,7 +66,7 @@ def list_product_package_required_options(client, package):
                 print "LocGrpID: ", price['locationGroupId'], priceFormat % (price['id'], price['item']['description'])
                     #locationGroupId is the reason some items appear multiple times - allows us to restrict the list if the dc is known
 
-def get_datacenter_locatons(client):
+def get_datacenter_locations(client):
     object_mask = "mask[id, longName, name]"
     return client['Location_Datacenter'].getDatacenters(mask=object_mask)
 
@@ -73,18 +74,16 @@ def get_location_groups(client):
     object_mask = "mask[id,description]"
     return client['Location_Group'].getAllObjects(mask=object_mask)
 
-def location_groups_NOT_YET_COMPLETED():
+def get_location_group_members(client,groupID):
     # querying location groups - needed to identify pricing items
-    mymask = "mask[id,description]"
-    out = client['Location_Group'].getLocations(id=503)
-    pp.pprint(out)
+    object_mask = "mask[id,description]"
+    return client['Location_Group'].getLocations(id=groupID)
 
-    out = client['Location_Group'].getLocationGroupType(id=545)
-    pp.pprint(out)
+def get_location_group_type(client,groupID):
+    return client['Location_Group'].getLocationGroupType(id=groupID)
 
-    out = client['Location'].getGroups(id=449596)
-    pp.pprint(out)
-
+def get_is_member_of_location_groups(client,locationID):
+    return client['Location'].getGroups(id=locationID)
 
     #this can be used to enumberate all orders in the account
 #pp.pprint(client['Billing_Order'].getAllObjects())
