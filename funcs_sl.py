@@ -12,11 +12,16 @@ def download_quote_pdf(client, quoteID):
     #because: logic!? Anyway... this works
     return client['Billing_Order_Quote'].getPdf(id=quoteID)
 
-def list_all_product_packages(client):
+def list_all_product_packages(client, active=True):
+    #default active=True as some poc functionality was implemented
+    #before this parameter was introduced - if it isn't specified
+    #we default to the previous behaviour
     object_mask = "mask[id, name]"
-    return client['Account'].getActivePackages(mask=object_mask)
+    if active:
+        return client['Account'].getActivePackages(mask=object_mask)
         #This approach came from http://sldn.softlayer.com/blog/sthompson/virtual-guest-ordering
-    #return client['Product_Package'].getAllObjects(mask=object_mask)
+    else:
+        return client['Product_Package'].getAllObjects(mask=object_mask)
 
 def get_existing_quote_container(client, quoteID):
     container = client['Billing_Order_Quote'].getRecalculatedOrderContainer( \
