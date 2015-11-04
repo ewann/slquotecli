@@ -39,6 +39,12 @@ def place_quote(client, container):
 def create_order_cart(client, container):
     return client['Product_Order_Cart'].createCart(container)
 
+def get_configurations(client, package):
+    return client['Product_Package'].getConfiguration(id=package)
+
+def get_prices(client, package):
+    return client['Product_Package'].getItemPrices(id=package)
+
 def list_product_package_options(client, package, required):
     #package = 248 #46 for virtual server, see sl-list-pkgs.py for more
 

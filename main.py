@@ -10,9 +10,9 @@ class State:
         import pprint
         self.pp = pprint.PrettyPrinter(indent=4)
         self.slclient = funcs_sl.conn_obj()
-        self.list_sl_dc = []
+        #self.list_sl_dc = []
         self.list_sl_active_product_packages = []
-        self.master_dict = {}
+        self.cache_dict = {}
         self.wip_dict = {}
         self.wip_dict['complexType'] = 'SoftLayer_Container_Product_Order_Hardware_Server'
         self.wip_dict['quantity'] = 1
@@ -22,10 +22,16 @@ class State:
         self.locations[location.name] = location
     def gotoloc(self, locname):
         self.location = self.locations[locname]
-    def populate_list_sl_dc(self, dclist):
+    #sl datastructures
+    '''def populate_list_sl_dc(self, dclist):
         self.list_sl_dc = dclist
-    def populate_list_active_product_packages(self, pplist):
-        self.list_sl_active_product_packages = pplist
+    '''
+    #def populate_list_active_product_packages(self, pplist):
+    #    self.list_sl_active_product_packages = pplist
+
+    def overwrite_cache_dict_key(self, rootkey, content):
+        self.cache_dict[rootkey] = content
+
 
 class Location:
     def __init__(self, name, desc, options=None):
@@ -179,10 +185,10 @@ class ShowAllProductPackages:
         self.active = active
         self.clioutput = clioutput
     def execute(self, state):
-        if state.list_sl_active_product_packages:
+        if 'sl-product-packages' in state.cache_dict:
             print ("Found data in local cache, using that")
             if self.clioutput:
-                state.pp.pprint(state.list_sl_active_product_packages)
+                state.pp.pprint(state.cache_dict['sl-product-packages'])
                 print ("")
         else:
             print ("Nothing found in local cache...")
@@ -191,7 +197,7 @@ class ShowAllProductPackages:
             try:
                 result = funcs_sl.list_all_product_packages(state.slclient, self.active)
                 state.pp.pprint(result)
-                state.populate_list_active_product_packages(result)
+                state.overwrite_cache_dict_key('sl-product-packages', result)
                 print ("")
             except Exception,e:
                 print ("Failed with error:")
@@ -206,31 +212,41 @@ class ListPackageOptions:
         choice = raw_input("> ")
         print ("You chose \"{0}\"").format(choice)
         packageID = int(choice)
-
-        #if we find the package in self.master_dict = {}
-            #use the cache
-        #else
-            # look it up, and store it
-
-        print ("Connecting to SoftLayer...")
-        print ("")
-        try:
-            state.pp.pprint(funcs_sl.list_product_package_options(state.slclient, packageID, self.required))
+        config_key_name = 'sl-pkg-'+packageID+'-configs'
+        price_key_name = 'sl-pkg-'+packageID+'-prices'
+        if config_key_name in state.cache_dict and price_key_name in state.cache_dict:
+            print ("Found data in local cache, using that")
+            #use cache
+        else:
+            #we need to populate both sets of values
+            print ("Nothing found in local cache...")
+            print ("Connecting to SoftLayer...")
             print ("")
-        except Exception,e:
-            print ("Failed with error:")
-            print (str(e))
-            print ("")
+            try:
+                result = funcs_sl.get_configurations(state.slclient, packageID)
+                state.overwrite_cache_dict_key(config_key_name, result)
+                result = funcs_sl.get_prices(state.slclient, packageID)
+                state.overwrite_cache_dict_key(price_key_name, result)
+
+                '''print ("Connecting to SoftLayer...")
+                print ("")
+            try:
+                state.pp.pprint(funcs_sl.list_product_package_options(state.slclient, packageID, self.required))
+                print ("")'''
+            except Exception,e:
+                print ("Failed with error:")
+                print (str(e))
+                print ("")
 
 class GetDataCenterLocations:
     def __init__(self, clioutput=False):
         self.clioutput = clioutput
     def execute(self, state):
-        if state.list_sl_dc:
+        if 'sl-dc-locations' in state.cache_dict:
             print ("Found data in local cache, using that")
             print ("")
             if self.clioutput:
-                state.pp.pprint(state.list_sl_dc)
+                state.pp.pprint(state.cache_dict['sl-dc-locations'])
                 print ("")
         else:
             print ("Nothing found in local cache...")
@@ -240,7 +256,7 @@ class GetDataCenterLocations:
                 result = funcs_sl.get_datacenter_locations(state.slclient)
                 if self.clioutput:
                     state.pp.pprint(result)
-                state.populate_list_sl_dc(result)
+                state.overwrite_cache_dict_key("sl-dc-locations", result)
                 print ("")
             except Exception,e:
                 print ("Failed with error:")
@@ -307,6 +323,17 @@ class GetIsMemberOfLocationGroups:
             print (str(e))
             print ("")
 
+class InteractiveExec:
+    def execute(self, state):
+        print ("")
+        print ("Think about it: You supplied production SL credentials")
+        print ("and now you chose the option titled 'Break stuff'.")
+        print ("Press <enter>, and we' forget this happened.")
+        print ("")
+        choice = raw_input("> ")
+        print ("You typed \"{0}\"").format(choice)
+        exec(choice)
+
 menu_main = Location("menu_main",
     "Press the number then <enter> for the option you want:",
     [Option("Download Quote Pdf for a specific quote", DownloadQuotePdf()),
@@ -323,15 +350,16 @@ menu_main = Location("menu_main",
     Option("List Location_Group members", GetLocationGroupMembers()),
     Option("List type of a Location_Group",  GetLocationGroupType()),
     Option("List Location_Group(s) location is a member of", GetIsMemberOfLocationGroups()),
+    Option("Break stuff", InteractiveExec()),
     Option("Exit to shell", CloseDown("Goodbye."))])
 
 class SpecifyDatacenter:
     def execute(self, state):
-        if not state.list_sl_dc:
+        if not 'sl-dc-locations' in state.cache_dict:
             print "Local cache doesn't contain datacenter data, fixing that..."
             GetDataCenterLocations(False).execute(state)
         print ("List of valid datacenter's currently cached:")
-        state.pp.pprint(state.list_sl_dc)
+        state.pp.pprint(state.cache_dict['sl-dc-locations'])
         print ("Specify datacenter id:")
         choice = raw_input("> ")
         print ("You chose \"{0}\"").format(choice)
