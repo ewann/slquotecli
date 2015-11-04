@@ -6,3 +6,4 @@ def pdfPickle(output_file_name_base, binary_obj):
     pickleFile = open(pickleFileName, 'wb')
     pickle.dump(binary_obj, pickleFile, pickle.HIGHEST_PROTOCOL)
     pickleFile.close()
+    return pickleFileName
