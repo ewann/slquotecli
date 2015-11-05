@@ -7,7 +7,6 @@ class State:
         self.location = starting_loc
         self.locations = {}
         #state for slquotecli goes here?
-        import pprint
         self.pp = pprint.PrettyPrinter(indent=4)
         self.slclient = funcs_sl.conn_obj()
         self.cache_dict = {}
@@ -443,8 +442,145 @@ class ShowDatacenter:
 
 class ShowWipDict:
     def execute(self, state):
-        print ("WIP dict for in progress quote looks like:")
-        state.pp.pprint(state.wip_dict)
+        print ("The currently selected & in progress quote container looks like:")
+        #state.pp.pprint(state.cache_dict['currently_selected_product_container'])
+
+        quote = {}
+        quoteContainers = []
+        containers = ListLoadedProductContainers(clioutput=False).execute(state)
+        for item in containers:
+            state.cache_dict.get(item)
+            quoteContainers.append(state.cache_dict.get(item))
+        quote['orderContainers'] = quoteContainers
+        quote
+        state.pp.pprint(quote)
+
+class CreateProductContainer:
+    def execute(self, state):
+        print ("")
+        print ("Quotes (and fwiw orders) are composed of one or more containers")
+        print ("If you need multiple servers of the same configuration")
+        print ("it makes sense to use the quantity attribute of the container")
+        print ("as opposed to creating one container per server")
+        print ("unless you have no other task to complete right now...")
+        print ("")
+        print ("Enter a name (using chars: [A-z1-0]) for this container")
+        print ("")
+        print ("If you specify the name of an existing container, we'll overwrite it.")
+        print ("You won't get warned again before that happens.")
+        print ("")
+        print ("Your container will be prefixed: container-<your_container_name>")
+        print ("Eg: You enter: test")
+        print ("The container created will be called: container-test")
+        print ("")
+        choice = raw_input("> ")
+        print ("You typed \"{0}\"").format(choice)
+        if choice == '':
+            print ("Noting entered, aborted")
+        else:
+            container_name = "container-"+(str(choice))
+            state.overwrite_cache_dict_key(container_name, {})
+            state.cache_dict[container_name]['complexType'] = 'SoftLayer_Container_Product_Order_Hardware_Server'
+            state.cache_dict[container_name]['quantity'] = 1
+            state.cache_dict[container_name]['hardware'] = []
+            state.cache_dict[container_name]['containerIdentifier'] = container_name
+            state.cache_dict[container_name]['location'] = 3
+            state.cache_dict[container_name]['prices'] = []
+
+class ListLoadedProductContainers:
+    def __init__(self, clioutput=False):
+        self.clioutput = clioutput
+    def execute(self, state):
+        if self.clioutput:
+            print ("")
+            print ("The following containers are currently cached / loaded:")
+            print ("")
+        result = {k:v for (k,v) in state.cache_dict.iteritems() if 'container-' in k}
+        if self.clioutput:
+            print result.keys()
+        return result.keys()
+
+class UnloadProductContainer:
+    def execute(self, state):
+        print ("")
+        print ("Enter the container name you wish to unload")
+        print ("(this doesn't currently save) the container anywhere")
+        print ("")
+        choice = raw_input("> ")
+        print ("You typed \"{0}\"").format(choice)
+        if choice == '' or not "container-" in choice:
+            print ("Invalid request, aborted")
+        else:
+            if choice in state.cache_dict: del state.cache_dict[choice]
+
+class SelectProductContainerForEditing:
+    def execute(self, state):
+        print ("")
+        print ("Enter the container name you wish to edit:")
+        print ("")
+        choice = raw_input("> ")
+        print ("You typed \"{0}\"").format(choice)
+        result = {k:v for (k,v) in state.cache_dict.iteritems() if choice in k}
+        if not bool(result):
+            print ("")
+            print ("Something went wrong, we couldn't find that container")
+            print ("")
+        else:
+            if debug_printing:
+                print ("")
+                print ("In: SelectProductContainerForEditing, else... (we found the container in cache_dict)")
+                print ("result of container lookup: ")
+                print(result)
+                print ("")
+                print ("In: SelectProductContainerForEditing, printing state.cache_dict.keys()")
+                print(state.cache_dict.keys())
+            state.cache_dict['currently_selected_product_container'] = choice
+
+class ShowCurrentlySelectedProductContainer:
+    def execute(self, state):
+        if 'currently_selected_product_container' in state.cache_dict:
+            print ("")
+            print ("The currently selected product container is:")
+            print ("")
+            print state.cache_dict['currently_selected_product_container']
+        else:
+            print ("no product containers are currently selected")
+            if debug_printing: print ("cache dict looks like: "+ str(state.cache_dict.keys()))
+
+class VerifyQuote:
+    def execute(self, state):
+        quote = {}
+        quoteContainers = []
+        containers = ListLoadedProductContainers(clioutput=False).execute(state)
+        for item in containers:
+            state.cache_dict.get(item)
+            quoteContainers.append(state.cache_dict.get(item))
+        quote['orderContainers'] = quoteContainers
+        quote
+        state.pp.pprint(quote)
+        print ("Connecting to SoftLayer...")
+        print ("")
+        try:
+            state.pp.pprint(funcs_sl.verify_quote_or_order(state.slclient, quote))
+            print ("")
+        except Exception,e:
+            print ("Failed with error:")
+            print (str(e))
+            print ("")
+
+class UnloadProductContainer:
+    def execute(self, state):
+        print ("")
+        print ("Enter the site you would like to specify for this container:")
+        print ("")
+        choice = raw_input("> ")
+        print ("You typed \"{0}\"").format(choice)
+
+        state
+        if choice == '' or not "container-" in choice:
+            print ("Invalid request, aborted")
+        else:
+            if choice in state.cache_dict: del state.cache_dict[choice]
 
 menu_main = Location("menu_main",
     "Press the number then <enter> for the option you want:",
@@ -466,20 +602,35 @@ menu_main = Location("menu_main",
     Option("Break stuff", InteractiveExec()),
     Option("Exit to shell", CloseDown("Goodbye."))])
 
+
 menu_manage_quotes = Location("menu_manage_quotes",
     "Press the number then <enter> for the option you want:",
-    [Option("(MENU) Return to previous menu (nothing will be saved)", GoToLocation("menu_main")),
+    [Option("(MENU) Return to previous menu", GoToLocation("menu_main")),
     Option("Show in progress quote", ShowWipDict()),
     Option("Specify datacenter", SpecifyDatacenter()),
     Option("Show currently selected datacenter", ShowDatacenter()),
-    Option("List existing quote container(s)", Message("Not implemented")),
-    Option("List existing product container(s)", Message("Not implemented")),
-    Option("Create a product container", Message("Not implemented")),
-    Option("Modify a product container", Message("Not implemented")),
-    Option("Delete a product container", Message("Not implemented")),
-    Option("Verify a quote (all existing product containers)", Message("Not implemented")),
+    Option("List existing order container(s)", Message("Not implemented")),
+    Option("List existing product container(s)", ListLoadedProductContainers(clioutput=True)),
+    Option("Create a product container", MultiAction([ListLoadedProductContainers(clioutput=True),
+                                            CreateProductContainer()])),
+    Option("(MENU) Select a product container for editing", MultiAction([ListLoadedProductContainers(clioutput=True),
+                                                                #ShowCurrentlySelectedProductContainer(),
+                                                                SelectProductContainerForEditing(),
+                                                                #ShowCurrentlySelectedProductContainer(),
+                                                                GoToLocation("menu_edit_product_container")])),
+    Option("Unload a product container", MultiAction([ListLoadedProductContainers(clioutput=True),
+                                            UnloadProductContainer()])),
+    Option("Verify a quote (uses all loaded product containers)", VerifyQuote()),
     Option("Place a quote (all existing product containers)", Message("Not implemented")),
     Option("Exit to shell", CloseDown("Goodbye"))])
+
+menu_edit_product_container = Location("menu_edit_product_container",
+    "Press the number then <enter> for the option you want:",
+    [Option("(MENU) Return to previous menu", GoToLocation("menu_manage_quotes")),
+    Option("(MENU) Return to main menu", GoToLocation("menu_main")),
+    Option("Change deployment location", GoToLocation("menu_main")),
+    Option("Exit to shell", CloseDown("Goodbye"))])
+
 
 menu_example = Location("menu_example", """You want to take multiple actions,
 or mutate menu items""",
@@ -496,13 +647,14 @@ if __name__=="__main__":
         sys.exit(1)
     else:
         if debug_printing: print("envchecks returned true...")
+        import pprint
         import funcs_sl #functions that interact with SL api
         import funcs_fs #functions that interact with local filesystem
         s = State(menu_main)
         s.addloc(menu_main)
         s.addloc(menu_manage_quotes)
+        s.addloc(menu_edit_product_container)
         s.location.start()
-
         while(s.alive):
             s.location.print_opts()
             s.location.get_choice(s)
