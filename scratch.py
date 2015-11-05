@@ -3,7 +3,16 @@ import SoftLayer
 #increase default timeout to reduce false failure
 #on slow or conjested connections
 client = SoftLayer.create_client_from_env(timeout=240)
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
 
+out = client['Product_Package'].getLocations(id=*)
+
+
+pp.pprint(out)
+
+
+#client['Account'].getActivePackages(
 #client = SoftLayer.Client(username=myuser, api_key=mykey, endpoint_url=SoftLayer.API_PUBLIC_ENDPOINT)
 
 
@@ -22,13 +31,8 @@ order = {
     {
     'complexType': 'SoftLayer_Container_Product_Order_Hardware_Server',
     'quantity': 1,
-    'hardware': [
-          {
-            'hostname': 'test1',
-            'domain': 'example.com',
-          }
-    ],
     'containerIdentifier': 'myContainer',
+    'hardware': [],
     'location': '449596',
     'packageId': 248, # Intel Xeon 3200 Series
     'prices': [
@@ -48,6 +52,35 @@ order = {
                 {'id': 418}, # Vulnerability Assessments & Management - Nessus Vulnerability Assessment & Reporting
     ],
     },
+    {
+    'complexType': 'SoftLayer_Container_Product_Order_Hardware_Server',
+    'quantity': 1,
+    'containerIdentifier': '---myContainer',
+    'hardware': [],
+    #'location': '449596',
+    'packageId': 259, # Intel Xeon 3200 Series
+    'prices': [
+                {'id': 49525},
+                {'id': 48999},
+                {'id': 49445},
+                {'id': 876}, # Disk Controller - Non-RAID
+                {'id': 49769}, # First Hard Drive - 73GB SA-SCSI 10K RPM
+                {'id': 50261}, #bandwidth
+                {'id': 21141}, #os
+                 # Uplink Port Speeds - 10 Mbps Public & Private Networks
+                {'id': 906}, # Remote Management - Reboot / KVM over IP
+                {'id': 21}, # Primary IP Addresses - 1 IP Address
+                {'id': 55}, # Monitoring - Host Ping
+                {'id': 57}, # Notification - Email and Ticket
+                {'id': 58}, # Response - 24x7x365 NOC Monitoring, Notification, and Response
+                {'id': 420}, # VPN Management - Private Network - Unlimited SSL VPN Users & 1 PPTP VPN User per account
+                {'id': 418}, # Vulnerability Assessments & Management - Nessus Vulnerability Assessment & Reporting
+    ],
+    }
+],
+}
+
+'''
     {
     'complexType': 'SoftLayer_Container_Product_Order_Virtual_Guest',
     'quantity': 1,
@@ -79,6 +112,10 @@ order = {
     },
 ],
 }
+'''
+client['Product_Order'].verifyOrder(order)
+
+
 
 from pprint import pprint as pp
 pp = pprint.PrettyPrinter(indent=4)
