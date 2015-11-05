@@ -40,10 +40,12 @@ def create_order_cart(client, container):
     return client['Product_Order_Cart'].createCart(container)
 
 def get_configurations(client, package):
-    return client['Product_Package'].getConfiguration(id=package)
+    categoryObjectMask = "mask[isRequired, itemCategory[id, name]]"
+    return client['Product_Package'].getConfiguration(id=package, mask=categoryObjectMask)
 
 def get_prices(client, package):
-    return client['Product_Package'].getItemPrices(id=package)
+    pricesObjectMask = "mask[id;item.description;categories.id,locationGroupId]"
+    return client['Product_Package'].getItemPrices(id=package, mask=pricesObjectMask)
 
 def list_product_package_options(client, package, required):
     #package = 248 #46 for virtual server, see sl-list-pkgs.py for more

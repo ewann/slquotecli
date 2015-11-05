@@ -7,45 +7,6 @@ client = SoftLayer.create_client_from_env(timeout=240)
 #client = SoftLayer.Client(username=myuser, api_key=mykey, endpoint_url=SoftLayer.API_PUBLIC_ENDPOINT)
 
 
-cache_dict = {}
-
-import SoftLayer
-client = SoftLayer.create_client_from_env(timeout=240)
-packageID = 46
-required = True
-categoryObjectMask = "mask[isRequired, itemCategory[id, name]]"
-configurations = client['Product_Package'].getConfiguration(id=packageID, mask=categoryObjectMask)
-pricesObjectMask = "mask[id;item.description;categories.id,locationGroupId]"
-prices = client['Product_Package'].getItemPrices(id=packageID, mask=pricesObjectMask)
-
-config_key_name = 'sl-pkg-'+str(packageID)+'-configs'
-price_key_name = 'sl-pkg-'+str(packageID)+'-prices'
-
-cache_dict[config_key_name] = {}
-cache_dict[price_key_name] = {}
-
-cache_dict[config_key_name] = configurations
-cache_dict[price_key_name] = prices
-
-cache_dict.keys()
-
-priceFormat = '%s, %s, %s, %s, %s'
-for configuration in cache_dict[config_key_name]:
-    if required:
-        if (not configuration['isRequired']):
-            continue
-    for price in cache_dict[price_key_name]:
-        if ('categories' not in price):
-            continue
-        if any((category.get('id') == configuration['itemCategory']['id']
-                for category in price['categories'])):
-            print priceFormat % (configuration['itemCategory']['name'], configuration['itemCategory']['id'], price['locationGroupId'], price['id'], price['item']['description'])
-
-
-
-
-
-
 
 import pprint
 
@@ -151,46 +112,3 @@ quoteKey = '8b3a868b22e56543e066cd97af8d72c9'
 #quote = client['Billing_Order_Quote'].getQuoteByQuoteKey(quoteKey)
 
 #quoteObj = client['Billing_Order_Quote'].getObject(id=1558305)
-
-
-
-import SoftLayer
-client = SoftLayer.create_client_from_env(timeout=240)
-print client['Account'].getQuotes()
-
-class download_quote_pdf:
-    def __init__(self, msg):
-        self.msg = msg
-    def execute(self, state):
-        print self.msg
-
-
-action_download_quote_pdf(client, menu_download_quote_pdf())
-
-
-def menu_download_quote_pdf():
-    print ("")
-    print ("")
-    print ("Enter the id for the quote you wish to download:")
-    user_input = raw_input("id: ")
-    return int(user_input)
-
-def download_quote_pdf(client, quoteID):
-    #because: logic!? Anyway... this works
-    return client['Billing_Order_Quote'].getPdf(id=quoteID)
-
-
-def pdfPickle(output_file_name_base, binary_obj):
-    import pickle
-    pickleFileName = "./SL-Quote-ID"+str(output_file_name_base)+".pdf"
-    pickleFile = open(pickleFileName, 'wb')
-    pickle.dump(binary_obj, pickleFile, pickle.HIGHEST_PROTOCOL)
-    pickleFile.close()
-
-def legacy():
-
-    quoteID = funcs_cli_menu.download_quote_pdf()
-    print ("Connecting to SoftLayer...")
-    quotePDF = funcs_sl.download_quote_pdf(client, quoteID)
-    print ("Writing output file ")
-    funcs_fs.pdfPickle(quoteID, quotePDF)
