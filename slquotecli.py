@@ -1,3 +1,4 @@
+#!/usr/bin/python
 #menu code based on the example at:
 #http://codereview.stackexchange.com/questions/65305/making-user-menus-in-a-text-based-game
 
@@ -165,6 +166,15 @@ class ShowAllProductPackages:
         self.active = active
         self.clioutput = clioutput
     def execute(self, state):
+        #missing logic appears to be:
+                            #client['Product_Package'].getLocations(id=xyz)
+        #if a target datacenter is configured:
+            #for each package:
+                #if output of getLocations is already cached:
+                    #if current dc is in scope, print package id
+                #else:
+                    #cache the output of #client['Product_Package'].getLocations(id=xyz)
+                    ##if current dc is in scope, print package id
         if 'sl-product-packages' in state.cache_dict:
             print ("Found data in local cache, using that")
             if self.clioutput:
@@ -235,10 +245,11 @@ class BuildProductOptions:
                 state.pp.pprint(selected_location_groups)
         def output_when_location_specified(price, configuration):
             #if a datacenter is selcted, we can further restrict the list of items presented
-            #currently we restrict the list to everything in a group the dc is part of, plus all the items that are
-            #not part of a group. Possibly this is wrong, and will need to be further tightened to
-            #remove duplicate/invalid items (items with no group id, where one exists witha group id for this dc)
-            if price['locationGroupId'] == '' or price['locationGroupId'] in state.cache_dict[selected_location_group_memberships_list_key]:
+            #currently we restrict the list to everything in a group the dc is part of,
+            #we are currently filtering out:
+            # all the items that are not part of a group.
+            #Possibly this is wrong, but it appears correct based on attempts to order items with location group id's
+            if price['locationGroupId'] == '': #or price['locationGroupId'] in state.cache_dict[selected_location_group_memberships_list_key]:
                 #if no datacenter is selected we return everything to the user, and let them figure it out.
                 #print priceFormat %
                 print '{: <6}'.format(price['id']), \
@@ -529,7 +540,8 @@ class SelectProductContainerForEditing:
         result = {k:v for (k,v) in state.cache_dict.iteritems() if choice in k}
         if not bool(result):
             print ("")
-            print ("Something went wrong, we couldn't find that container")
+            print ("Something went wrong, we couldn't find that product container")
+            print ("Maybe you didn't create it yet?")
             print ("")
         else:
             if debug_printing:
@@ -591,6 +603,11 @@ class ChangeDeploymentLocation:
         print ("")
         choice = raw_input("> ")
         print ("You typed \"{0}\"").format(choice)
+        #missing a check that something valid comes back from:
+        #result = state.cache_dict['currently_selected_product_container']
+        if not state.cache_dict.has_key('currently_selected_product_container'):
+            print ("No product container has been selected yet...")
+            SelectProductContainerForEditing().execute(state)
         container = state.cache_dict['currently_selected_product_container']
         state.cache_dict[container]['location'] = int(choice)
 
@@ -601,6 +618,9 @@ class ChangePackageId:
         print ("")
         choice = raw_input("> ")
         print ("You typed \"{0}\"").format(choice)
+        if not state.cache_dict.has_key('currently_selected_product_container'):
+            print ("No product container has been selected yet...")
+            SelectProductContainerForEditing().execute(state)
         container = state.cache_dict['currently_selected_product_container']
         state.cache_dict[container]['packageId'] = int(choice)
 
@@ -616,6 +636,9 @@ class SpecifyPriceIds:
         print ("")
         choice = raw_input("> ")
         print ("You typed \"{0}\"").format(choice)
+        if not state.cache_dict.has_key('currently_selected_product_container'):
+            print ("No product container has been selected yet...")
+            SelectProductContainerForEditing().execute(state)
         container = state.cache_dict['currently_selected_product_container']
         prices = choice.split(",")
         output_prices = []
@@ -626,49 +649,55 @@ class SpecifyPriceIds:
         state.cache_dict[container]['prices'] = output_prices
 
 menu_main = Location("menu_main",
+            #FEATURE REQUEST: catch ctrl-c / other keyboard escapes?
     "Press the number then <enter> for the option you want:",
-    [Option("Download Quote Pdf for an existing portal quote", DownloadQuotePdf()),
-    #Option("(MENU) Manage Quotes", GoToLocation("menu_manage_quotes")),
-    Option("List Location_DataCenter (DC locations)", GetDataCenterLocations(clioutput=True)),
-    Option("Specify target datacenter", SpecifyDatacenter()),
-    Option("Show currently selected datacenter", ShowDatacenter()),
-    Option("Show all active SoftLayer_product_Package(s)", ShowAllProductPackages(active=True, clioutput=True)),
-    Option("List SoftLayer_Product_Package *required* options for a given package", ListPackageOptions(required=True)),
-    Option("List SoftLayer_Product_Package *all* options for a given package", ListPackageOptions(required=False)),
-    Option("Create a product container", MultiAction([ListLoadedProductContainers(clioutput=True),
+    [Option("Specify target datacenter id", SpecifyDatacenter()),
+    Option("Show all SoftLayer_product_Package(s) active in this account", ShowAllProductPackages(active=True, clioutput=True)),
+            #BUG - api is not being checked to confirm packages are available in the selected datacenter
+                #WORKAROUND: validate a quote with only the location & package set to confirm item is orderable
+    Option("List SoftLayer_Product_Package *required* options for a given package (use 'id' from menu option 2)", ListPackageOptions(required=True)),
+    Option("List SoftLayer_Product_Package *all* options for a given package (use 'id' from menu option 2)", ListPackageOptions(required=False)),
+            #BUG: container type is hardcoded, meaning that virtual servers (cci's), gateways etc cannot be quoted
+                #NO-WORKAROUND
+            #BUG: quantity is hardcoded to 1 per containers
+                #WORKAROUND: create a container per server required
+    Option("Create product container(s)", MultiAction([ListLoadedProductContainers(clioutput=True),
                                             CreateProductContainer(),
                                             ListLoadedProductContainers(clioutput=True),
                                             SelectProductContainerForEditing()])),
-            #BUG? seems to be a dependency on next item that doesn't get auto resolved
-    Option("(MENU) Select a product container for editing", MultiAction([ListLoadedProductContainers(clioutput=True),
+            #FIXED? 20151106 #BUG? seems to be a dependency on next item that doesn't get auto resolved
+    Option("Select a product container for editing", MultiAction([ListLoadedProductContainers(clioutput=True),
                                                                 ShowCurrentlySelectedProductContainer(),
                                                                 SelectProductContainerForEditing(),
                                                                 ShowCurrentlySelectedProductContainer(),
                                                                 GoToLocation("menu_main")])),
     Option("List existing product container(s)", ListLoadedProductContainers(clioutput=True)),
-                                        #    CreateProductContainer(),
-                                        #    ListLoadedProductContainers(clioutput=True)])),
-    Option("Unload a product container", MultiAction([ListLoadedProductContainers(clioutput=True),
+    Option("Unload / delete product container(s)", MultiAction([ListLoadedProductContainers(clioutput=True),
                                             UnloadProductContainer()])),
-    Option("Change deployment location", MultiAction([ShowCurrentlySelectedProductContainer(),
+    Option("Set container deployment location (use id from menu option 0 / 15)", MultiAction([ShowCurrentlySelectedProductContainer(),
                                                                 ShowInprogressQuote(),
                                                                 ChangeDeploymentLocation(),
-            #SEEMS TO BE A BUG - needs triage - resolution appears to come from (MENU) Select a product.... above
+            #FIXED? 20151106 #SEEMS TO BE A BUG - needs triage - resolution appears to come from (MENU) Select a product.... above
                                                                 ShowInprogressQuote(),
                                                                 GoToLocation("menu_main")])),
-    Option("Change package id", MultiAction([ShowCurrentlySelectedProductContainer(),
+    Option("Set container package id (use id from menu option 1)", MultiAction([ShowCurrentlySelectedProductContainer(),
                                                                 ShowInprogressQuote(),
                                                                 ChangePackageId(),
                                                                 ShowInprogressQuote(),
                                                                 GoToLocation("menu_main")])),
-    Option("Change price ids", MultiAction([ShowCurrentlySelectedProductContainer(),
+            #FEATURE requirement: display friendly text as well as price ID's
+    Option("Set container price ids (use column 1 from menu option 2 / 3)", MultiAction([ShowCurrentlySelectedProductContainer(),
                                                                 ShowInprogressQuote(),
                                                                 SpecifyPriceIds(),
                                                                 ShowInprogressQuote(),
                                                                 GoToLocation("menu_main")])),
-    Option("Show the in progress quote", ShowInprogressQuote()),
+            #FEATURE Requirement: output id's as comma separated list in case of need to chance
+    Option("Show the in progress quote containers", ShowInprogressQuote()),
     Option("Verify a quote (uses all loaded product containers)", VerifyPlaceQuote()),
-    Option("Place a quote (all existing product containers)", VerifyPlaceQuote(placeQuote=True)),
+    Option("Place a quote (uses all loaded product containers)", VerifyPlaceQuote(placeQuote=True)),
+    Option("Download Quote Pdf for an existing portal quote id", DownloadQuotePdf()),
+    Option("List Location_DataCenter (DC locations)", GetDataCenterLocations(clioutput=True)),
+    Option("Show currently selected datacenter", ShowDatacenter()),
     Option("Troubleshooting options menu", GoToLocation("menu_troubleshooting")),
     Option("Exit to shell", CloseDown("Goodbye."))])
 
@@ -688,24 +717,6 @@ menu_troubleshooting = Location("menu_troubleshooting",
         (one of Ewan's accounts) regarding functionality: ['SoftLayer_Billing_Order_Cart'].createCart(container) \
         'the customer won't be able to create a cart, because this is a feature which is on hold'"))])
 
-'''
-menu_manage_quotes = Location("menu_manage_quotes",
-    "Press the number then <enter> for the option you want:",
-    [Option("(MENU) Return to previous menu", GoToLocation("menu_main")),
-    Option("Specify datacenter", SpecifyDatacenter()),
-    Option("(MENU) Select a product container for editing", MultiAction([ListLoadedProductContainers(clioutput=True),
-                                                                ShowCurrentlySelectedProductContainer(),
-                                                                SelectProductContainerForEditing(),
-                                                                ShowCurrentlySelectedProductContainer(),
-                                                                GoToLocation("menu_edit_product_container")])),
-    Option("Exit to shell", CloseDown("Goodbye"))])
-
-menu_edit_product_container = Location("menu_edit_product_container",
-    "Press the number then <enter> for the option you want:",
-    [Option("(MENU) Return to previous menu", GoToLocation("menu_manage_quotes")),
-    Option("(MENU) Return to main menu", GoToLocation("menu_main")),
-    Option("Exit to shell", CloseDown("Goodbye"))])
-'''
 menu_example = Location("menu_example", """You want to take multiple actions,
 or mutate menu items""",
                        [Option("Main Menu", GoToLocation("menu_main")),
@@ -726,8 +737,6 @@ if __name__=="__main__":
         import funcs_fs #functions that interact with local filesystem
         s = State(menu_main)
         s.addloc(menu_main)
-        s.addloc(menu_manage_quotes)
-        s.addloc(menu_edit_product_container)
         s.addloc(menu_troubleshooting)
         s.location.start()
         while(s.alive):
