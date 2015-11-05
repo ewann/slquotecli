@@ -1,4 +1,5 @@
-
+import class_obj
+    #called from manage_quotes_menu
 def main():
     print ("")
     print ("")
@@ -110,13 +111,14 @@ def manage_quotes_menu(client, datacenterID):
     print datacenterID
     print ("")
     print ("  1 - Specify datacenter")
-    print ("  2 - List existing order container(s)")
-    print ("  3 - Create a quote container")
-    print ("  4 - Modify a quote container")
-    print ("  5 - Delete a quote container")
-    print ("  6 - Verify a quote (all existing order containers)")
-    print ("  7 - Place a quote (all existing order containers)")
-    print ("  0 - Back to main menu (throw away unsaved quotes)")
+    print ("  2 - List existing quote container(s)")
+    print ("  8 - List existing product container(s)")
+    print ("  3 - Create a product container")
+    print ("  4 - Modify a product container")
+    print ("  5 - Delete a product container")
+    print ("  6 - Verify a quote (all existing product containers)")
+    print ("  7 - Place a quote (all existing product containers)")
+    print ("  0 - Back to main menu (throw away unsaved work)")
     user_input = raw_input("Your choice: ")
     try:
         choice = int(user_input)
@@ -127,4 +129,32 @@ def manage_quotes_menu(client, datacenterID):
     elif choice == 1:
         datacenterID = get_datacenter_id()
         manage_quotes_menu(client, datacenterID)
-    #elif choice == 2:
+    elif choice == 2:
+        print ("")
+        print ("Listing quote containers...")
+        class_obj.list_objects_of_type(class_obj.order_container)
+        print ("Finished listing quote containers.")
+        print ("")
+        manage_quotes_menu(client, datacenterID)
+    elif choice == 8:
+        print ("")
+        print ("Listing product containers...")
+        class_obj.list_objects_of_type(class_obj.order_container)
+        print ("Finished listing product containers.")
+        print ("")
+        manage_quotes_menu(client, datacenterID)
+    elif choice == 3:
+        user_input = raw_input("Enter an asci containerIdentifier (friendly name): ")
+        my_oc = {}
+        my_oc['complexType'] = 'SoftLayer_Container_Product_Order_Hardware_Server'
+        my_oc['quantity'] = 1
+        my_oc['hardware'] = 1#[hw_container.returnSelf()]
+        my_oc['containerIdentifier'] = user_input
+        my_oc['packageId'] = '248'
+        my_oc['prices'] = 1#price_container.returnSelf()
+            #prices doesn't need [] because of datatype?
+        my_oc['location'] = '449596'
+        container = class_obj.product_container(my_oc)
+
+        class_obj.list_objects_of_type(class_obj.order_container)
+        manage_quotes_menu(client, datacenterID)

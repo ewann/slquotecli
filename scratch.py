@@ -7,7 +7,6 @@ client = SoftLayer.create_client_from_env(timeout=240)
 #client = SoftLayer.Client(username=myuser, api_key=mykey, endpoint_url=SoftLayer.API_PUBLIC_ENDPOINT)
 
 
-
 import pprint
 
 #https://forums.softlayer.com/forum/softlayer-developer-network/general-discussion/80475-provision-bare-metal-instance-via-rest-api
