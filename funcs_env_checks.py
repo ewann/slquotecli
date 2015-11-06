@@ -35,8 +35,9 @@ def args_check_suceed():
 def show_python_version_error_msg():
     print ("")
     print ("Python 3.x is not currently supported by this script.")
-    print ("Python 2.x version must be 2.6 or greater for SoftLayer:")
-    print ("And 2.7.x or greater for this script")
+    print ("Python 2.x version must be 2.6 or greater for SoftLayer python module:")
+    print ("Python 2.7.x or later is required by this script")
+        #currently due to "zero length field name in format" error for either of:List SoftLayer_Product_Package
     print ("")
     print ("http://sldn.softlayer.com/article/python")
     print ("")
@@ -69,7 +70,7 @@ def show_pip_error_msg():
     print ("pip isn't currently installed.")
     print ("you will need to:")
     print ("")
-    print ("yum install epel-release'")
+    print ("yum install epel-release")
     print ("yum install python-pip")
     print ("")
     print ("or your platform's equivalent")

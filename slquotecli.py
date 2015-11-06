@@ -484,12 +484,20 @@ class CreateProductContainer:
         else:
             container_name = "container-"+(str(choice))
             state.overwrite_cache_dict_key(container_name, {})
-            state.cache_dict[container_name]['complexType'] = 'SoftLayer_Container_Product_Order_Hardware_Server'
+            #state.cache_dict[container_name]['complexType'] = 'SoftLayer_Container_Product_Order_Hardware_Server'
+                #The api appears to auto-populate the Container_Product_Order... if it is omitted, which saves us some work
             state.cache_dict[container_name]['quantity'] = 1
             state.cache_dict[container_name]['hardware'] = []
             state.cache_dict[container_name]['containerIdentifier'] = container_name
             state.cache_dict[container_name]['location'] = 3
-            state.cache_dict[container_name]['prices'] = []
+            state.cache_dict[container_name]['packageId'] = 46
+            state.cache_dict[container_name]['prices'] = [{"id": "1642"}, \
+                {"id": "1644"}, {"id": "905"}, {"id": "272"}, {"id": "50231"}, \
+                {"id": "21"}, {"id": "13887"}, {"id": "21014"}, {"id": "55"}, \
+                {"id": "57"}, {"id": "58"}, {"id": "420"}, {"id": "418"}]
+                #bare minimum values to order a virtual server are Populated
+                #so that users have an example configuration for which
+                #they can immediately submit quotes.
 
 class ListLoadedProductContainers:
     def __init__(self, clioutput=False):
@@ -499,7 +507,12 @@ class ListLoadedProductContainers:
             print ("")
             print ("The following package containers are currently cached / loaded:")
             print ("")
-        result = {k:v for (k,v) in state.cache_dict.iteritems() if 'container-' in k}
+        #result = {k:v for (k,v) in state.cache_dict.iteritems() if 'container-' in k}
+            #syntax not supported in python pre 2.7.x, so instead using:
+        result = {}
+        for k,v in state.cache_dict.iteritems():
+            if 'container-' in k:
+                result[k] = v
         if self.clioutput:
             print result.keys()
             print ("")
@@ -526,7 +539,12 @@ class SelectProductContainerForEditing:
         print ("")
         choice = raw_input("> ")
         print ("You typed \"{0}\"").format(choice)
-        result = {k:v for (k,v) in state.cache_dict.iteritems() if choice in k}
+        #result = {k:v for (k,v) in state.cache_dict.iteritems() if choice in k}
+            #syntax not supported in python pre 2.7.x, so instead using:
+        result = {}
+        for k,v in state.cache_dict.iteritems():
+            if choice in k:
+                result[k] = v
         if not bool(result):
             print ("")
             print ("Something went wrong, we couldn't find that container")
@@ -543,17 +561,22 @@ class SelectProductContainerForEditing:
             state.cache_dict['currently_selected_product_container'] = choice
 
 class ShowCurrentlySelectedProductContainer:
+    def __init__(self, clioutput=False):
+        self.clioutput = clioutput
     def execute(self, state):
         if 'currently_selected_product_container' in state.cache_dict:
-            print ("")
-            print ("The currently selected product container is:")
-            print ("")
-            print state.cache_dict['currently_selected_product_container']
-            print ("")
-            print ("")
+            if self.clioutput:
+                print ("")
+                print ("The currently selected product container is:")
+                print ("")
+                print state.cache_dict['currently_selected_product_container']
+                print ("")
+                print ("")
+            return state.cache_dict['currently_selected_product_container']
         else:
-            print ("no product containers are currently selected")
+            if self.clioutput: print ("no product containers are currently selected")
             if debug_printing: print ("cache dict looks like: "+ str(state.cache_dict.keys()))
+            return None
 
 class VerifyPlaceQuote:
     def __init__(self, placeQuote=False):
@@ -574,11 +597,16 @@ class VerifyPlaceQuote:
             if self.placeQuote:
                 funcs_sl.place_quote(state.slclient, quote)
                 print ("")
-                print ("Quote SUCCESSFULLY PLACED - you can safely place a quote using these package containers")
+                print ("Quote SUCCESSFULLY PLACED - you can see the quote on control.softlayer.com")
+                print ("Or download the pdf from the menu")
+                print ("")
+                print ("")
             else:
                 state.pp.pprint(funcs_sl.verify_quote_or_order(state.slclient, quote))
                 print ("")
-                print ("Quote SUCCESSFULLY VERIFIED - you can safely place a quote using these package containers")
+                print ("Quote SUCCESSFULLY VERIFIED - you can safely place a quote using these settings")
+                print ("")
+                print ("")
         except Exception,e:
             print ("Failed with error:")
             print (str(e))
@@ -591,6 +619,12 @@ class ChangeDeploymentLocation:
         print ("")
         choice = raw_input("> ")
         print ("You typed \"{0}\"").format(choice)
+        #missing a check that something valid comes back from:
+        #result = state.cache_dict['currently_selected_product_container']
+        if not state.cache_dict.has_key('currently_selected_product_container'):
+            print ("No product container has been selected yet...")
+            ListLoadedProductContainers(clioutput=True).execute(state)
+            SelectProductContainerForEditing().execute(state)
         container = state.cache_dict['currently_selected_product_container']
         state.cache_dict[container]['location'] = int(choice)
 
@@ -601,6 +635,10 @@ class ChangePackageId:
         print ("")
         choice = raw_input("> ")
         print ("You typed \"{0}\"").format(choice)
+        if not state.cache_dict.has_key('currently_selected_product_container'):
+            print ("No product container has been selected yet...")
+            ListLoadedProductContainers(clioutput=True).execute(state)
+            SelectProductContainerForEditing().execute(state)
         container = state.cache_dict['currently_selected_product_container']
         state.cache_dict[container]['packageId'] = int(choice)
 
@@ -616,6 +654,10 @@ class SpecifyPriceIds:
         print ("")
         choice = raw_input("> ")
         print ("You typed \"{0}\"").format(choice)
+        if not state.cache_dict.has_key('currently_selected_product_container'):
+            print ("No product container has been selected yet...")
+            ListLoadedProductContainers(clioutput=True).execute(state)
+            SelectProductContainerForEditing().execute(state)
         container = state.cache_dict['currently_selected_product_container']
         prices = choice.split(",")
         output_prices = []
@@ -625,52 +667,108 @@ class SpecifyPriceIds:
             output_prices.append(temp_dict)
         state.cache_dict[container]['prices'] = output_prices
 
+class ChangePackageQuantity:
+    def execute(self, state):
+        print ("")
+        print ("Enter the quantity you would like to specify for the selected container:")
+        print ("")
+        choice = raw_input("> ")
+        print ("You typed \"{0}\"").format(choice)
+        if not state.cache_dict.has_key('currently_selected_product_container'):
+            print ("No product container has been selected yet...")
+            ListLoadedProductContainers(clioutput=True).execute(state)
+            SelectProductContainerForEditing().execute(state)
+        container = state.cache_dict['currently_selected_product_container']
+        state.cache_dict[container]['quantity'] = int(choice)
+
+class ExportProductContainersToJson:
+    def execute(self, state):
+        for k,v in state.cache_dict.iteritems():
+            if 'container-' in k:
+                try:
+                    if debug_printing:
+                        print ("writing object: "+str(k))
+                        state.pp.pprint(v)
+                    funcs_fs.jsonGateway("save", "./"+k+".json", v)
+                except Exception,e:
+                    print ("Failed with error:")
+                    print (str(e))
+                    print ("")
+
+class ImportProductContainersFromJson:
+    def execute(self, state):
+        try:
+            containerFiles = funcs_fs.enumFilesInDir(".",".json")
+            for file in containerFiles:
+                if debug_printing:
+                    print ("Filename: "+str(file))
+                    state.pp.pprint(funcs_fs.jsonGateway("load", "./"+file))
+                if file.endswith('.json'): container_name = file[:-5]
+                sans_unicode = funcs_fs.byteify(funcs_fs.jsonGateway("load", "./"+file))
+                if debug_printing: state.pp.pprint(sans_unicode)
+                state.cache_dict[container_name] = sans_unicode
+        except Exception,e:
+            print ("Failed with error:")
+            print (str(e))
+            print ("")
+
+class PricesListOfDictsToCSV:
+    def execute(self,state):
+        currently_selected_product_container = ShowCurrentlySelectedProductContainer(clioutput=False).execute(state)
+        print ("Currently selected product container: "+str(currently_selected_product_container))
+
 menu_main = Location("menu_main",
+    #FEATURE REQUEST: catch ctrl-c / other keyboard escapes?
     "Press the number then <enter> for the option you want:",
-    [Option("Download Quote Pdf for an existing portal quote", DownloadQuotePdf()),
-    #Option("(MENU) Manage Quotes", GoToLocation("menu_manage_quotes")),
-    Option("List Location_DataCenter (DC locations)", GetDataCenterLocations(clioutput=True)),
-    Option("Specify target datacenter", SpecifyDatacenter()),
-    Option("Show currently selected datacenter", ShowDatacenter()),
-    Option("Show all active SoftLayer_product_Package(s)", ShowAllProductPackages(active=True, clioutput=True)),
-    Option("List SoftLayer_Product_Package *required* options for a given package", ListPackageOptions(required=True)),
-    Option("List SoftLayer_Product_Package *all* options for a given package", ListPackageOptions(required=False)),
-    Option("Create a product container", MultiAction([ListLoadedProductContainers(clioutput=True),
+    [Option("Specify target datacenter id", SpecifyDatacenter()),
+    Option("Show all SoftLayer_product_Package(s) active in this account", ShowAllProductPackages(active=True, clioutput=True)),
+    #BUG - api is not being checked to confirm packages are available in the selected datacenter
+        #WORKAROUND: validate a quote with only the location & package set to confirm item is orderable
+    Option("List SoftLayer_Product_Package *required* options for a given package (use 'id' from menu option 1)", ListPackageOptions(required=True)),
+    Option("List SoftLayer_Product_Package *all* options for a given package (use 'id' from menu option 1)", ListPackageOptions(required=False)),
+    Option("Create product container", MultiAction([ListLoadedProductContainers(clioutput=True),
                                             CreateProductContainer(),
                                             ListLoadedProductContainers(clioutput=True),
                                             SelectProductContainerForEditing()])),
-            #BUG? seems to be a dependency on next item that doesn't get auto resolved
-    Option("(MENU) Select a product container for editing", MultiAction([ListLoadedProductContainers(clioutput=True),
-                                                                ShowCurrentlySelectedProductContainer(),
+    Option("Select a product container for editing", MultiAction([ListLoadedProductContainers(clioutput=True),
+                                                                ShowCurrentlySelectedProductContainer(clioutput=True),
                                                                 SelectProductContainerForEditing(),
-                                                                ShowCurrentlySelectedProductContainer(),
+                                                                ShowCurrentlySelectedProductContainer(clioutput=True),
                                                                 GoToLocation("menu_main")])),
     Option("List existing product container(s)", ListLoadedProductContainers(clioutput=True)),
-                                        #    CreateProductContainer(),
-                                        #    ListLoadedProductContainers(clioutput=True)])),
-    Option("Unload a product container", MultiAction([ListLoadedProductContainers(clioutput=True),
+    Option("Unload product container - make sure you save it first", MultiAction([ListLoadedProductContainers(clioutput=True),
                                             UnloadProductContainer()])),
-    Option("Change deployment location", MultiAction([ShowCurrentlySelectedProductContainer(),
+    Option("Set container deployment location (use id from menu option 0 / 19)", MultiAction([ShowCurrentlySelectedProductContainer(clioutput=True),
                                                                 ShowInprogressQuote(),
                                                                 ChangeDeploymentLocation(),
-            #SEEMS TO BE A BUG - needs triage - resolution appears to come from (MENU) Select a product.... above
                                                                 ShowInprogressQuote(),
                                                                 GoToLocation("menu_main")])),
-    Option("Change package id", MultiAction([ShowCurrentlySelectedProductContainer(),
+    Option("Set container package id (use id from menu option 1)", MultiAction([ShowCurrentlySelectedProductContainer(clioutput=True),
                                                                 ShowInprogressQuote(),
                                                                 ChangePackageId(),
                                                                 ShowInprogressQuote(),
                                                                 GoToLocation("menu_main")])),
-    Option("Change price ids", MultiAction([ShowCurrentlySelectedProductContainer(),
+    #FEATURE requirement: display friendly text as well as price ID's
+    Option("Set container price ids (use column 1 from menu option 2 / 3)", MultiAction([ShowCurrentlySelectedProductContainer(clioutput=True),
                                                                 ShowInprogressQuote(),
                                                                 SpecifyPriceIds(),
+                                                                #PricesListOfDictsToCSV(),
+    #FEATURE Requirement: output id's as comma separated list in case of need to chance
+        #DEFERRED: ID's can be copy/pased out of the json files the export function now creates
                                                                 ShowInprogressQuote(),
                                                                 GoToLocation("menu_main")])),
-    Option("Show the in progress quote", ShowInprogressQuote()),
+    Option("Set the container quantity value (number of servers of this container type)", ChangePackageQuantity()),
+    Option("Show the in progress quote containers", ShowInprogressQuote()),
     Option("Verify a quote (uses all loaded product containers)", VerifyPlaceQuote()),
-    Option("Place a quote (all existing product containers)", VerifyPlaceQuote(placeQuote=True)),
+    Option("Place a quote (uses all loaded product containers)", VerifyPlaceQuote(placeQuote=True)),
+    Option("Export Product containers to disk (JSON)", ExportProductContainersToJson()),
+    Option("Import Product containers (*.json) in current dir", ImportProductContainersFromJson()),
+    Option("Download Quote Pdf for an existing portal quote id", DownloadQuotePdf()),
+    Option("Show all quotes in account", ShowAllQuotes()),
+    Option("List Location_DataCenter (DC locations)", GetDataCenterLocations(clioutput=True)),
+    Option("Show currently selected datacenter", ShowDatacenter()),
     Option("Troubleshooting options menu", GoToLocation("menu_troubleshooting")),
-    Option("Exit to shell", CloseDown("Goodbye."))])
+    Option("Exit to shell - make sure you save things you want before leaving", CloseDown("Goodbye."))])
 
 menu_troubleshooting = Location("menu_troubleshooting",
     "Press the number then <enter> for the option you want:",
@@ -682,7 +780,6 @@ menu_troubleshooting = Location("menu_troubleshooting",
     Option("List Location_Group members", GetLocationGroupMembers(clioutput=True)),
     Option("List type of a Location_Group",  GetLocationGroupType()),
     Option("List Location_Group(s) location is a member of", GetIsMemberOfLocationGroups(clioutput=True)),
-    Option("Show all quotes in account", ShowAllQuotes()),
     Option("List existing order container(s)", Message("Not implemented")),
     Option("<SL Not Imlemented> Create quote cart", Message("According to https://control.softlayer.com/support/tickets/23363617 \
         (one of Ewan's accounts) regarding functionality: ['SoftLayer_Billing_Order_Cart'].createCart(container) \
@@ -722,6 +819,9 @@ if __name__=="__main__":
     else:
         if debug_printing: print("envchecks returned true...")
         import pprint
+        import pickle #needed by funcs_fs.pdfPickle
+        import json #needed by funcs_fs.jsonGateway
+        import os #needed by funcs_fs.enumFilesInDir
         import funcs_sl #functions that interact with SL api
         import funcs_fs #functions that interact with local filesystem
         s = State(menu_main)

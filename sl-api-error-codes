@@ -1,7 +1,7 @@
 SL Virtual Server creation errors:
 
 Prior to:
-"Edit Tickets" - is part of the solution for cancelling virtual servers
+"Edit Tickets" - is part of the solution for canceling virtual servers
 
 Cancellation: prior to ticket creation grant -
 This cancellation could not be processed please contact support.This cancellation could not be processed.
@@ -22,5 +22,3 @@ Services --> "Manage SSH Keys"
 
 
 image creation took ~ 20 mins approx, for a very simple os config
-
-guarantee
