@@ -743,6 +743,7 @@ if __name__=="__main__":
     else:
         if debug_printing: print("envchecks returned true...")
         import pprint
+        import json #needed by funcs_fs.jsonGateway
         import funcs_sl #functions that interact with SL api
         import funcs_fs #functions that interact with local filesystem
         s = State(menu_main)
