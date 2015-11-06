@@ -658,6 +658,38 @@ class SpecifyPriceIds:
             output_prices.append(temp_dict)
         state.cache_dict[container]['prices'] = output_prices
 
+class ExportProductContainersToJson:
+    def execute(self, state):
+        for k,v in state.cache_dict.iteritems():
+            if 'container-' in k:
+                try:
+                    if debug_printing:
+                        print ("writing object: "+str(k))
+                        state.pp.pprint(v)
+                    funcs_fs.jsonGateway("save", "./"+k+".json", v)
+                except Exception,e:
+                    print ("Failed with error:")
+                    print (str(e))
+                    print ("")
+
+class ImportProductContainersFromJson:
+    def execute(self, state):
+        try:
+            containerFiles = funcs_fs.enumFilesInDir(".",".json")
+            for file in containerFiles:
+                if debug_printing:
+                    print ("Filename: "+str(file))
+                    state.pp.pprint(funcs_fs.jsonGateway("load", "./"+file))
+                if file.endswith('.json'): container_name = file[:-5]
+                sans_unicode = funcs_fs.byteify(funcs_fs.jsonGateway("load", "./"+file))
+                if debug_printing: state.pp.pprint(sans_unicode)
+                state.cache_dict[container_name] = sans_unicode
+        except Exception,e:
+            print ("Failed with error:")
+            print (str(e))
+            print ("")
+
+
 menu_main = Location("menu_main",
             #FEATURE REQUEST: catch ctrl-c / other keyboard escapes?
     "Press the number then <enter> for the option you want:",
@@ -671,7 +703,7 @@ menu_main = Location("menu_main",
                 #NO-WORKAROUND
             #BUG: quantity is hardcoded to 1 per containers
                 #WORKAROUND: create a container per server required
-    Option("Create product container(s)", MultiAction([ListLoadedProductContainers(clioutput=True),
+    Option("Create product container", MultiAction([ListLoadedProductContainers(clioutput=True),
                                             CreateProductContainer(),
                                             ListLoadedProductContainers(clioutput=True),
                                             SelectProductContainerForEditing()])),
@@ -682,7 +714,7 @@ menu_main = Location("menu_main",
                                                                 ShowCurrentlySelectedProductContainer(),
                                                                 GoToLocation("menu_main")])),
     Option("List existing product container(s)", ListLoadedProductContainers(clioutput=True)),
-    Option("Unload / delete product container(s)", MultiAction([ListLoadedProductContainers(clioutput=True),
+    Option("Unload product container(s) - make sure you save them first", MultiAction([ListLoadedProductContainers(clioutput=True),
                                             UnloadProductContainer()])),
     Option("Set container deployment location (use id from menu option 0 / 15)", MultiAction([ShowCurrentlySelectedProductContainer(),
                                                                 ShowInprogressQuote(),
@@ -705,6 +737,8 @@ menu_main = Location("menu_main",
     Option("Show the in progress quote containers", ShowInprogressQuote()),
     Option("Verify a quote (uses all loaded product containers)", VerifyPlaceQuote()),
     Option("Place a quote (uses all loaded product containers)", VerifyPlaceQuote(placeQuote=True)),
+    Option("Export Product containers to disk (JSON)", ExportProductContainersToJson()),
+    Option("Import Product containers (*.json) in current dir", ImportProductContainersFromJson()),
     Option("Download Quote Pdf for an existing portal quote id", DownloadQuotePdf()),
     Option("List Location_DataCenter (DC locations)", GetDataCenterLocations(clioutput=True)),
     Option("Show currently selected datacenter", ShowDatacenter()),
@@ -743,7 +777,9 @@ if __name__=="__main__":
     else:
         if debug_printing: print("envchecks returned true...")
         import pprint
+        import pickle #needed by funcs_fs.pdfPickle
         import json #needed by funcs_fs.jsonGateway
+        import os #needed by funcs_fs.enumFilesInDir
         import funcs_sl #functions that interact with SL api
         import funcs_fs #functions that interact with local filesystem
         s = State(menu_main)
