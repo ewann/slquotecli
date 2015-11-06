@@ -4,7 +4,7 @@
 
 A command line / menu driven quote creation utility for IBM SoftLayer. (SL)
 
-An alternative to the quote process available at:
+An alternative to the financial quote process available via:
 
 https://control.softlayer.com/
 
@@ -15,23 +15,23 @@ https://store.softlayer.com/configure
 * Explore SL server package mandatory & optional components
 * Build a quote container, composed of one or more package containers
 * Validate quote containers (can they generate quotes that SL will accept)
-* ~~Locally save quote containers for later reuse~~
+* Locally save quote containers, and reload them later
 * Register quotes on the SL portal, for later approval / purchasing / deletion
-* Download Pdf verion of existing quotes from SL portal
+* Download Pdf version of existing quotes from SL portal
 
 ***
 ##Why?
 
-Some users experience challenges to fit the publicly available
+Some users find it difficult to fit the publicly available
 solution into their work flow. In one case an organization has built
 an intranet replacement, but this doesn't interface directly with
 the SL api. As a consequence, selected indicative quotes
-are re-keyed into the SL ordering solution.
+must be re-keyed into the SL ordering solution.
 
-This repo hosts an *experiment* to investigate possible solutions.
+This repo hosts an *experiment* to investigate other possible solutions.
 
-#####Requirements cited as missing from the SL solution:
-* Ability to save quote content for later *editing* & resubmission
+#####Requirements cited as missing from the SL solution & provided here:
+* Ability to save quote components for later *editing* & rapid resubmission
 * Ability to generate / iterate / finalize quotes quickly
 
 ***
