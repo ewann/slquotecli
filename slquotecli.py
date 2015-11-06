@@ -826,8 +826,6 @@ if __name__=="__main__":
         import funcs_fs #functions that interact with local filesystem
         s = State(menu_main)
         s.addloc(menu_main)
-        s.addloc(menu_manage_quotes)
-        s.addloc(menu_edit_product_container)
         s.addloc(menu_troubleshooting)
         s.location.start()
         while(s.alive):
