@@ -35,7 +35,9 @@ def args_check_suceed():
 def show_python_version_error_msg():
     print ("")
     print ("Python 3.x is not currently supported by this script.")
-    print ("Python 2.x version must be 2.6 or greater for SoftLayer:")
+    print ("Python 2.x version must be 2.6 or greater for SoftLayer python module:")
+    print ("Python 2.7.x or later is required by this script")
+        #currently due to "zero length field name in format" error for either of:List SoftLayer_Product_Package
     print ("")
     print ("http://sldn.softlayer.com/article/python")
     print ("")
@@ -93,7 +95,7 @@ def show_requests_warn_msg():
     print ("")
 
 def is_python_supported():
-    if sys.version_info < (2, 6, 0) or sys.version_info > (3, 0):
+    if sys.version_info < (2, 7, 0) or sys.version_info > (3, 0):
         return False
     else:
         return True
