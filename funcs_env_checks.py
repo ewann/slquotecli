@@ -69,7 +69,7 @@ def show_pip_error_msg():
     print ("pip isn't currently installed.")
     print ("you will need to:")
     print ("")
-    print ("yum install epel-release'")
+    print ("yum install epel-release")
     print ("yum install python-pip")
     print ("")
     print ("or your platform's equivalent")
