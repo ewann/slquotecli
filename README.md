@@ -122,8 +122,8 @@ http://knowledgelayer.softlayer.com/procedure/retrieve-your-api-key
 
 ```
 cd <some-dir>
-git clone <this-repo>
-cd <this-repo>
+git clone https://github.com/ewann/slquotecli.git
+cd slquotecli
 ```
 
 ***
