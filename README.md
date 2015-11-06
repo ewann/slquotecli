@@ -39,6 +39,7 @@ This repo hosts an *experiment* to investigate other possible solutions.
 
 #####Python 2.x; version 2.7.x or later:
   * Most testing to date happened with 2.7.5
+  * The first version of the walk through slides used 2.7.10
   * There are known issues with 2.6.6, possibly all 2.6.x and earlier
 
 ######For Windows:
@@ -122,8 +123,8 @@ http://knowledgelayer.softlayer.com/procedure/retrieve-your-api-key
 
 ```
 cd <some-dir>
-git clone <this-repo>
-cd <this-repo>
+git clone https://github.com/ewann/slquotecli.git
+cd slquotecli
 ```
 
 ***
