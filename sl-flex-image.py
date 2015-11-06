@@ -5,7 +5,7 @@ import os
 SL_API_USERNAME = os.environ.get("SL_API_USERNAME", None)
 SL_API_KEY = os.environ.get("SL_API_KEY", None)
 
-SL_ACCOUNT = '746153'
+SL_ACCOUNT = ''
 
 print SL_API_USERNAME
 print SL_API_KEY
