@@ -510,8 +510,12 @@ class ListLoadedProductContainers:
             print ("")
             print ("The following package containers are currently cached / loaded:")
             print ("")
-        eval(result = {k:v for (k,v) in state.cache_dict.iteritems() if 'container-' in k})
-            #wrapped in eval so environment checks complete on python sys.version_info < (2, 7, 0)
+        #result = {k:v for (k,v) in state.cache_dict.iteritems() if 'container-' in k}
+            #syntax not supported in python pre 2.7.x, so instead using:
+        result = {}
+        for k,v in state.cache_dict.iteritems():
+            if 'container-' in k:
+                result[k] = v
         if self.clioutput:
             print result.keys()
             print ("")
@@ -538,8 +542,12 @@ class SelectProductContainerForEditing:
         print ("")
         choice = raw_input("> ")
         print ("You typed \"{0}\"").format(choice)
-        eval(result = {k:v for (k,v) in state.cache_dict.iteritems() if choice in k})
-            #wrapped in eval so environment checks complete on python sys.version_info < (2, 7, 0)
+        #result = {k:v for (k,v) in state.cache_dict.iteritems() if choice in k}
+            #syntax not supported in python pre 2.7.x, so instead using:
+        result = {}
+        for k,v in state.cache_dict.iteritems():
+            if choice in k:
+                result[k] = v
         if not bool(result):
             print ("")
             print ("Something went wrong, we couldn't find that product container")
@@ -729,7 +737,7 @@ or mutate menu items""",
 if __name__=="__main__":
     import sys #needed to read cli arguments
     import funcs_env_checks #pre-req's / python env checks
-    debug_printing = False#True #toggle for various debug output
+    debug_printing = True #toggle for various debug output
     if not funcs_env_checks.args_check_suceed():
         sys.exit(1)
     else:

@@ -36,7 +36,6 @@ def show_python_version_error_msg():
     print ("")
     print ("Python 3.x is not currently supported by this script.")
     print ("Python 2.x version must be 2.6 or greater for SoftLayer:")
-    print ("And 2.7.x or greater for this script")
     print ("")
     print ("http://sldn.softlayer.com/article/python")
     print ("")
@@ -94,7 +93,7 @@ def show_requests_warn_msg():
     print ("")
 
 def is_python_supported():
-    if sys.version_info < (2, 7, 0) or sys.version_info > (3, 0):
+    if sys.version_info < (2, 6, 0) or sys.version_info > (3, 0):
         return False
     else:
         return True
