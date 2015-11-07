@@ -127,6 +127,10 @@ git clone https://github.com/ewann/slquotecli.git
 cd slquotecli
 ```
 
+or:
+
+https://github.com/ewann/slquotecli/archive/master.zip
+
 ***
 ###Use:
 ####Linux:
