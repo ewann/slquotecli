@@ -714,16 +714,14 @@ class ImportProductContainersFromJson:
 
 class PricesListOfDictsToCSV:
     def execute(self,state):
+        #https://github.com/ewann/slquotecli/issues/5
         currently_selected_product_container = ShowCurrentlySelectedProductContainer(clioutput=False).execute(state)
         print ("Currently selected product container: "+str(currently_selected_product_container))
 
 menu_main = Location("menu_main",
-    #FEATURE REQUEST: catch ctrl-c / other keyboard escapes?
     "Press the number then <enter> for the option you want:",
     [Option("Specify target datacenter id", SpecifyDatacenter()),
     Option("Show all SoftLayer_product_Package(s)", ShowAllProductPackages(active=False, clioutput=True)),
-    #BUG - api is not being checked to confirm packages are available in the selected datacenter
-        #WORKAROUND: validate a quote with only the location & package set to confirm item is orderable
     Option("List SoftLayer_Product_Package *required* options for a given package (use 'id' from menu option 1)", ListPackageOptions(required=True)),
     Option("List SoftLayer_Product_Package *all* options for a given package (use 'id' from menu option 1)", ListPackageOptions(required=False)),
     Option("Create product container", MultiAction([ListLoadedProductContainers(clioutput=True),
@@ -748,13 +746,11 @@ menu_main = Location("menu_main",
                                                                 ChangePackageId(),
                                                                 ShowInprogressQuote(),
                                                                 GoToLocation("menu_main")])),
-    #FEATURE requirement: display friendly text as well as price ID's
     Option("Set container price ids (use column 1 from menu option 2 / 3)", MultiAction([ShowCurrentlySelectedProductContainer(clioutput=True),
                                                                 ShowInprogressQuote(),
                                                                 SpecifyPriceIds(),
                                                                 #PricesListOfDictsToCSV(),
-    #FEATURE Requirement: output id's as comma separated list in case of need to chance
-        #DEFERRED: ID's can be copy/pased out of the json files the export function now creates
+    #github: https://github.com/ewann/slquotecli/issues/5
                                                                 ShowInprogressQuote(),
                                                                 GoToLocation("menu_main")])),
     Option("Set the container quantity value (number of servers of this container type)", ChangePackageQuantity()),
