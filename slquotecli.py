@@ -234,18 +234,18 @@ class BuildProductOptions:
                 print ("")
                 state.pp.pprint(selected_location_groups)
         def output_when_location_specified(price, configuration):
-            #if a datacenter is selcted, we can further restrict the list of items presented
-            #currently we restrict the list to everything in a group the dc is part of, plus all the items that are
-            #not part of a group. Possibly this is wrong, and will need to be further tightened to
-            #remove duplicate/invalid items (items with no group id, where one exists witha group id for this dc)
-            if price['locationGroupId'] == '' or price['locationGroupId'] in state.cache_dict[selected_location_group_memberships_list_key]:
+            #If a datacenter has already been targeted, we only return prices where the locationGroupId is null
+            #Based on testing to date this appears to be the correct thing to do
+            #if the user didn't target a datacenter we return everything:
+            #possibly they know better and want to choose from one of those options
+            if price['locationGroupId'] == '': #or price['locationGroupId'] in state.cache_dict[selected_location_group_memberships_list_key]:
                 #if no datacenter is selected we return everything to the user, and let them figure it out.
                 #print priceFormat %
                 print '{: <6}'.format(price['id']), \
                     '{: <42}'.format(configuration['itemCategory']['name']), \
                     '{: <3}'.format(configuration['itemCategory']['id']), \
-                    '{: <5}'.format(price['locationGroupId']), \
                     '{: <63}'.format(price['item']['description'])
+                    # '{: <5}'.format(price['locationGroupId']), \
         def output_when_location_not_specified(price, configuration):
             print '{: <6}'.format(price['id']), \
                 '{: <42}'.format(configuration['itemCategory']['name']), \
