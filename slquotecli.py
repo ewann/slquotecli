@@ -721,7 +721,7 @@ menu_main = Location("menu_main",
     #FEATURE REQUEST: catch ctrl-c / other keyboard escapes?
     "Press the number then <enter> for the option you want:",
     [Option("Specify target datacenter id", SpecifyDatacenter()),
-    Option("Show all SoftLayer_product_Package(s) active in this account", ShowAllProductPackages(active=True, clioutput=True)),
+    Option("Show all SoftLayer_product_Package(s)", ShowAllProductPackages(active=False, clioutput=True)),
     #BUG - api is not being checked to confirm packages are available in the selected datacenter
         #WORKAROUND: validate a quote with only the location & package set to confirm item is orderable
     Option("List SoftLayer_Product_Package *required* options for a given package (use 'id' from menu option 1)", ListPackageOptions(required=True)),
