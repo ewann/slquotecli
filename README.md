@@ -145,4 +145,11 @@ python slquotecli.py
 ```
 
 ***
+##Walkthrough:
+
+* Quickstart walkthrough - https://github.com/ewann/slquotecli/blob/master/walkthrough-quick.pdf
+
+* Full Walkthrough - https://github.com/ewann/slquotecli/blob/master/walkthrough-full.pdf
+
+***
 ######Markdown aided by: https://github.com/joeyespo/grip
