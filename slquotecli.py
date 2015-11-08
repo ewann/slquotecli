@@ -8,7 +8,7 @@ class State:
         self.locations = {}
         #state for slquotecli goes here?
         self.pp = pprint.PrettyPrinter(indent=4)
-        self.slclient = funcs_sl.conn_obj()
+        self.slclient = funcs.funcs_sl.conn_obj()
         self.cache_dict = {}
         self.wip_dict = {}
         self.wip_dict['complexType'] = 'SoftLayer_Container_Product_Order_Hardware_Server'
@@ -100,7 +100,7 @@ class DownloadQuotePdf:
         print ("Downloading Pdf...")
         print ("")
         try:
-            quoteObj = funcs_sl.download_quote_pdf(state.slclient, quoteID)
+            quoteObj = funcs.funcs_sl.download_quote_pdf(state.slclient, quoteID)
         except Exception,e:
             print ("")
             print ("failed with error")
@@ -108,7 +108,7 @@ class DownloadQuotePdf:
         print ("")
         print ("Saving Pdf...")
         try:
-            result = funcs_fs.pdfPickle(quoteID, quoteObj)
+            result = funcs.funcs_fs.pdfPickle(quoteID, quoteObj)
             print ("Saved quote: " + str(result) + " to local filesystem")
             print ("")
         except Exception,e: #print str(e)
@@ -125,7 +125,7 @@ class ReverifyExistingQuote:
         print ("Connecting to SoftLayer...")
         print ("")
         try:
-            state.pp.pprint(funcs_sl.verify_quote_or_order(state.slclient, funcs_sl.get_existing_quote_container(state.slclient, quoteID)))
+            state.pp.pprint(funcs.funcs_sl.verify_quote_or_order(state.slclient, funcs.funcs_sl.get_existing_quote_container(state.slclient, quoteID)))
             print ("")
         except Exception,e:
             print ("Failed with error:")
@@ -141,7 +141,7 @@ class DuplicateExistingQuote:
         print ("Connecting to SoftLayer...")
         print ("")
         try:
-            state.pp.pprint(funcs_sl.place_quote(state.slclient, funcs_sl.get_existing_quote_container(state.slclient, quoteID)))
+            state.pp.pprint(funcs.funcs_sl.place_quote(state.slclient, funcs.funcs_sl.get_existing_quote_container(state.slclient, quoteID)))
             print ("")
         except Exception,e:
             print ("Failed with error:")
@@ -153,7 +153,7 @@ class ShowAllQuotes:
         print ("Connecting to SoftLayer")
         print ("")
         try:
-            state.pp.pprint(funcs_sl.list_all_quotes(state.slclient))
+            state.pp.pprint(funcs.funcs_sl.list_all_quotes(state.slclient))
             print ("")
         except Exception,e:
             print ("Failed with error:")
@@ -175,7 +175,7 @@ class ShowAllProductPackages:
             print ("Connecting to SoftLayer...")
             print ("")
             try:
-                result = funcs_sl.list_all_product_packages(state.slclient, self.active)
+                result = funcs.funcs_sl.list_all_product_packages(state.slclient, self.active)
                 state.pp.pprint(result)
                 state.overwrite_cache_dict_key('sl-product-packages', result)
                 print ("")
@@ -204,9 +204,9 @@ class ListPackageOptions:
             print ("Connecting to SoftLayer...")
             print ("")
             try:
-                result = funcs_sl.get_configurations(state.slclient, packageID)
+                result = funcs.funcs_sl.get_configurations(state.slclient, packageID)
                 state.overwrite_cache_dict_key(config_key_name, result)
-                result = funcs_sl.get_prices(state.slclient, packageID)
+                result = funcs.funcs_sl.get_prices(state.slclient, packageID)
                 state.overwrite_cache_dict_key(price_key_name, result)
                 BuildProductOptions.execute(BuildProductOptions(), state, state.cache_dict[config_key_name], state.cache_dict[price_key_name], packageID, self.required)
             except Exception,e:
@@ -283,7 +283,7 @@ class GetDataCenterLocations:
             print ("Connecting to SoftLayer...")
             print ("")
             try:
-                result = funcs_sl.get_datacenter_locations(state.slclient)
+                result = funcs.funcs_sl.get_datacenter_locations(state.slclient)
                 if self.clioutput:
                     state.pp.pprint(result)
                 state.overwrite_cache_dict_key("sl-dc-locations", result)
@@ -308,7 +308,7 @@ class GetLocationGroups:
             print ("Connecting to SoftLayer...")
             print ("")
             try:
-                result = funcs_sl.get_location_groups(state.slclient)
+                result = funcs.funcs_sl.get_location_groups(state.slclient)
                 if self.clioutput:
                     state.pp.pprint(result)
                 state.overwrite_cache_dict_key("sl-location-groups", result)
@@ -338,7 +338,7 @@ class GetLocationGroupMembers:
             print ("Connecting to SoftLayer...")
             print ("")
             try:
-                result = funcs_sl.get_location_group_members(state.slclient, locationGroupID)
+                result = funcs.funcs_sl.get_location_group_members(state.slclient, locationGroupID)
                 if self.clioutput:
                     state.pp.pprint(result)
                 state.overwrite_cache_dict_key(location_group_key_name, result)
@@ -357,7 +357,7 @@ class GetLocationGroupType:
         print ("Connecting to SoftLayer...")
         print ("")
         try:
-            state.pp.pprint(funcs_sl.get_location_group_type(state.slclient, locationGroupID))
+            state.pp.pprint(funcs.funcs_sl.get_location_group_type(state.slclient, locationGroupID))
             print ("")
         except Exception,e:
             print ("Failed with error:")
@@ -390,7 +390,7 @@ class GetIsMemberOfLocationGroups:
                 print ("Connecting to SoftLayer...")
                 print ("")
             try:
-                result = funcs_sl.get_is_member_of_location_groups(state.slclient, locationID)
+                result = funcs.funcs_sl.get_is_member_of_location_groups(state.slclient, locationID)
                 if self.clioutput:
                     state.pp.pprint(result)
                     print ("")
@@ -595,14 +595,14 @@ class VerifyPlaceQuote:
         print ("")
         try:
             if self.placeQuote:
-                funcs_sl.place_quote(state.slclient, quote)
+                funcs.funcs_sl.place_quote(state.slclient, quote)
                 print ("")
                 print ("Quote SUCCESSFULLY PLACED - you can see the quote on control.softlayer.com")
                 print ("Or download the pdf from the menu")
                 print ("")
                 print ("")
             else:
-                state.pp.pprint(funcs_sl.verify_quote_or_order(state.slclient, quote))
+                state.pp.pprint(funcs.funcs_sl.verify_quote_or_order(state.slclient, quote))
                 print ("")
                 print ("Quote SUCCESSFULLY VERIFIED - you can safely place a quote using these settings")
                 print ("")
@@ -689,7 +689,7 @@ class ExportProductContainersToJson:
                     if debug_printing:
                         print ("writing object: "+str(k))
                         state.pp.pprint(v)
-                    funcs_fs.jsonGateway("save", "./"+k+".json", v)
+                    funcs.funcs_fs.jsonGateway("save", "./"+k+".json", v)
                 except Exception,e:
                     print ("Failed with error:")
                     print (str(e))
@@ -698,13 +698,13 @@ class ExportProductContainersToJson:
 class ImportProductContainersFromJson:
     def execute(self, state):
         try:
-            containerFiles = funcs_fs.enumFilesInDir(".",".json")
+            containerFiles = funcs.funcs_fs.enumFilesInDir(".",".json")
             for file in containerFiles:
                 if debug_printing:
                     print ("Filename: "+str(file))
-                    state.pp.pprint(funcs_fs.jsonGateway("load", "./"+file))
+                    state.pp.pprint(funcs.funcs_fs.jsonGateway("load", "./"+file))
                 if file.endswith('.json'): container_name = file[:-5]
-                sans_unicode = funcs_fs.byteify(funcs_fs.jsonGateway("load", "./"+file))
+                sans_unicode = funcs.funcs_fs.byteify(funcs.funcs_fs.jsonGateway("load", "./"+file))
                 if debug_printing: state.pp.pprint(sans_unicode)
                 state.cache_dict[container_name] = sans_unicode
         except Exception,e:
@@ -808,9 +808,9 @@ or mutate menu items""",
 
 if __name__=="__main__":
     import sys #needed to read cli arguments
-    import funcs_env_checks #pre-req's / python env checks
+    import funcs.funcs_env_checks #pre-req's / python env checks
     debug_printing = False#True #toggle for various debug output
-    if not funcs_env_checks.args_check_suceed():
+    if not funcs.funcs_env_checks.args_check_suceed():
         sys.exit(1)
     else:
         if debug_printing: print("envchecks returned true...")
@@ -818,8 +818,8 @@ if __name__=="__main__":
         import pickle #needed by funcs_fs.pdfPickle
         import json #needed by funcs_fs.jsonGateway
         import os #needed by funcs_fs.enumFilesInDir
-        import funcs_sl #functions that interact with SL api
-        import funcs_fs #functions that interact with local filesystem
+        import funcs.funcs_sl #functions that interact with SL api
+        import funcs.funcs_fs #functions that interact with local filesystem
         s = State(menu_main)
         s.addloc(menu_main)
         s.addloc(menu_troubleshooting)
