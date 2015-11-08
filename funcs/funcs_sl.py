@@ -51,6 +51,9 @@ def get_prices(client, package):
     pricesObjectMask = "mask[id;item.description;categories.id,locationGroupId]"
     return client['Product_Package'].getItemPrices(id=package, mask=pricesObjectMask)
 
+'''
+obsoleted by get_configurations & get_prices
+
 def list_product_package_options(client, package, required):
     #package = 248 #46 for virtual server, see sl-list-pkgs.py for more
 
@@ -80,6 +83,7 @@ def list_product_package_options(client, package, required):
                     for category in price['categories'])):
                 print "LocGrpID: ", price['locationGroupId'], priceFormat % (price['id'], price['item']['description'])
                     #locationGroupId is the reason some items appear multiple times - allows us to restrict the list if the dc is known
+'''
 
 def get_datacenter_locations(client):
     object_mask = "mask[id, longName, name]"

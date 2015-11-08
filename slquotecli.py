@@ -6,20 +6,13 @@ class State:
         self.alive = True
         self.location = starting_loc
         self.locations = {}
-        #state for slquotecli goes here?
         self.pp = pprint.PrettyPrinter(indent=4)
         self.slclient = funcs.funcs_sl.conn_obj()
         self.cache_dict = {}
-        self.wip_dict = {}
-        self.wip_dict['complexType'] = 'SoftLayer_Container_Product_Order_Hardware_Server'
-        self.wip_dict['quantity'] = 1
-        self.num_order_containers = 0
-        self.num_product_containers = 0
     def addloc(self, location):
         self.locations[location.name] = location
     def gotoloc(self, locname):
         self.location = self.locations[locname]
-    #sl datastructures
     def overwrite_cache_dict_key(self, rootkey, content):
         self.cache_dict[rootkey] = content
 
@@ -238,23 +231,19 @@ class BuildProductOptions:
             #Based on testing to date this appears to be the correct thing to do
             #if the user didn't target a datacenter we return everything:
             #possibly they know better and want to choose from one of those options
-            if price['locationGroupId'] == '': #or price['locationGroupId'] in state.cache_dict[selected_location_group_memberships_list_key]:
-                #if no datacenter is selected we return everything to the user, and let them figure it out.
-                #print priceFormat %
+            if price['locationGroupId'] == '':
                 print '{: <6}'.format(price['id']), \
                     '{: <42}'.format(configuration['itemCategory']['name']), \
                     '{: <3}'.format(configuration['itemCategory']['id']), \
                     '{: <63}'.format(price['item']['description'])
-                    # '{: <5}'.format(price['locationGroupId']), \
         def output_when_location_not_specified(price, configuration):
+            #if no datacenter is selected we return everything to the user, and let them figure it out.
             print '{: <6}'.format(price['id']), \
                 '{: <42}'.format(configuration['itemCategory']['name']), \
                 '{: <3}'.format(configuration['itemCategory']['id']), \
                 '{: <5}'.format(price['locationGroupId']), \
                 '{: <63}'.format(price['item']['description'])
-            #print priceFormat % (price['locationGroupId'], configuration['itemCategory']['name'], configuration['itemCategory']['id'], price['id'], price['item']['description'])
         for configuration in config_cache:
-            #iterate configurations
             if self.required:
                 if (not configuration['isRequired']):
                     continue
@@ -447,8 +436,6 @@ class ShowDatacenter:
 class ShowInprogressQuote:
     def execute(self, state):
         print ("The currently selected & in progress quote container looks like:")
-        #state.pp.pprint(state.cache_dict['currently_selected_product_container'])
-
         quote = {}
         quoteContainers = []
         containers = ListLoadedProductContainers(clioutput=False).execute(state)
@@ -714,7 +701,7 @@ class ImportProductContainersFromJson:
 
 class PricesListOfDictsToCSV:
     def execute(self,state):
-        #https://github.com/ewann/slquotecli/issues/5
+        #https://github.com/ewann/slquotecli/issues/2
         currently_selected_product_container = ShowCurrentlySelectedProductContainer(clioutput=False).execute(state)
         print ("Currently selected product container: "+str(currently_selected_product_container))
 
@@ -781,24 +768,6 @@ menu_troubleshooting = Location("menu_troubleshooting",
         (one of Ewan's accounts) regarding functionality: ['SoftLayer_Billing_Order_Cart'].createCart(container) \
         'the customer won't be able to create a cart, because this is a feature which is on hold'"))])
 
-'''
-menu_manage_quotes = Location("menu_manage_quotes",
-    "Press the number then <enter> for the option you want:",
-    [Option("(MENU) Return to previous menu", GoToLocation("menu_main")),
-    Option("Specify datacenter", SpecifyDatacenter()),
-    Option("(MENU) Select a product container for editing", MultiAction([ListLoadedProductContainers(clioutput=True),
-                                                                ShowCurrentlySelectedProductContainer(),
-                                                                SelectProductContainerForEditing(),
-                                                                ShowCurrentlySelectedProductContainer(),
-                                                                GoToLocation("menu_edit_product_container")])),
-    Option("Exit to shell", CloseDown("Goodbye"))])
-
-menu_edit_product_container = Location("menu_edit_product_container",
-    "Press the number then <enter> for the option you want:",
-    [Option("(MENU) Return to previous menu", GoToLocation("menu_manage_quotes")),
-    Option("(MENU) Return to main menu", GoToLocation("menu_main")),
-    Option("Exit to shell", CloseDown("Goodbye"))])
-'''
 menu_example = Location("menu_example", """You want to take multiple actions,
 or mutate menu items""",
                        [Option("Main Menu", GoToLocation("menu_main")),
