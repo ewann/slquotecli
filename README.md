@@ -1,7 +1,7 @@
 #SLquoteCli
 
 ##Work suspended...
-While evaluating http://www.softlayer.com/tco/
+While evaluating http://www.softlayer.com/total-cost
 
 ##What?
 
