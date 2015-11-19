@@ -1,5 +1,8 @@
 #SLquoteCli
 
+##Work suspended...
+While evaluating http://www.softlayer.com/tco/
+
 ##What?
 
 A command line / menu driven quote creation utility for IBM SoftLayer. (SL)
